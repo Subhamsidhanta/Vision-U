@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Vision U - See Your Future Clearly</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-bg: #0a0a0a;
+            --secondary-bg: #111111;
+            --card-bg: #1a1a1a;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --accent-cyan: #00d4ff;
+            --accent-purple: #8b5cf6;
+            --accent-green: #10b981;
+            --text-primary: #ffffff;
+            --text-secondary: #a3a3a3;
+            --text-muted: #737373;
+            --border-subtle: rgba(255, 255, 255, 0.1);
+            --gradient-1: linear-gradient(135deg, #00d4ff 0%, #8b5cf6 100%);
+            --gradient-2: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            --gradient-3: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: var(--primary-bg);
+            overflow-x: hidden;
+            font-size: clamp(16px, 2.5vw, 18px); /* Responsive base font size */
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--secondary-bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-cyan);
+            border-radius: 4px;
+        }
+
+        /* Header */
+        header {
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-subtle);
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 clamp(1rem, 5vw, 2rem); /* Responsive padding */
+        }
+
+        .logo {
+            font-size: clamp(1.5rem, 4vw, 1.8rem); /* Responsive logo size */
+            font-weight: 800;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: clamp(1rem, 3vw, 2.5rem); /* Responsive gap */
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: clamp(0.9rem, 2.5vw, 1rem); /* Responsive font size */
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background: var(--gradient-1);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-primary);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .cta-btn {
+            background: var(--gradient-1);
+            color: white;
+            padding: clamp(0.6rem, 2vw, 0.8rem) clamp(1.2rem, 3vw, 1.8rem); /* Responsive padding */
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: clamp(0.85rem, 2.5vw, 0.95rem); /* Responsive font size */
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.4);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            background: var(--primary-bg);
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            padding: clamp(2rem, 10vw, 4rem) 0; /* Responsive padding */
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(0, 212, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+            z-index: 1;
+        }
+
+        .hero-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: clamp(30px, 5vw, 50px) clamp(30px, 5vw, 50px); /* Responsive grid size */
+            z-index: 1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 clamp(1rem, 5vw, 2rem); /* Responsive padding */
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(2rem, 5vw, 4rem); /* Responsive gap */
+            align-items: center;
+        }
+
+        .hero-text {
+            max-width: 600px;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 6vw, 4rem); /* Responsive font size */
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: clamp(1rem, 3vw, 1.5rem); /* Responsive margin */
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -2px;
+        }
+
+        .hero .subtitle {
+            font-size: clamp(1rem, 2.5vw, 1.25rem); /* Responsive font size */
+            color: var(--text-secondary);
+            margin-bottom: clamp(1.5rem, 4vw, 2.5rem); /* Responsive margin */
+            font-weight: 400;
+            line-height: 1.6;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: clamp(0.5rem, 2vw, 1rem); /* Responsive gap */
+            margin-bottom: clamp(2rem, 5vw, 3rem); /* Responsive margin */
+        }
+
+        .btn-primary {
+            background: var(--gradient-1);
+            color: white;
+            padding: clamp(0.8rem, 2vw, 1.2rem) clamp(1.5rem, 3vw, 2.5rem); /* Responsive padding */
+            border: none;
+            border-radius: 12px;
+            font-size: clamp(0.9rem, 2.5vw, 1rem); /* Responsive font size */
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--glass-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--border-subtle);
+            padding: clamp(0.8rem, 2vw, 1.2rem) clamp(1.5rem, 3vw, 2.5rem); /* Responsive padding */
+            border-radius: 12px;
+            font-size: clamp(0.9rem, 2.5vw, 1rem); /* Responsive font size */
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.4);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent-cyan);
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: clamp(1rem, 3vw, 2rem); /* Responsive gap */
+            flex-wrap: wrap; /* Allow stats to wrap on smaller screens */
+            justify-content: flex-start;
+        }
+
+        .stat {
+            text-align: left;
+            min-width: 120px; /* Prevent stats from shrinking too much */
+        }
+
+        .stat-number {
+            font-size: clamp(1.5rem, 4vw, 2rem); /* Responsive font size */
+            font-weight: 800;
+            color: var(--accent-cyan);
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: clamp(0.8rem, 2vw, 0.9rem); /* Responsive font size */
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .hero-visual {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .hero-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            padding: clamp(1.5rem, 4vw, 2rem); /* Responsive padding */
+            width: 100%;
+            max-width: clamp(300px, 50vw, 400px); /* Responsive width */
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        /* Features Section */
+        .features {
+            padding: clamp(4rem, 10vw, 6rem) clamp(1rem, 5vw, 2rem); /* Responsive padding */
+            background: var(--secondary-bg);
+            position: relative;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 clamp(1rem, 5vw, 2rem); /* Responsive padding */
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: clamp(2rem, 5vw, 3rem); /* Responsive font size */
+            font-weight: 800;
+            margin-bottom: clamp(2rem, 5vw, 4rem); /* Responsive margin */
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -1px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(clamp(300px, 40vw, 350px), 1fr)); /* Responsive grid */
+            gap: clamp(1.5rem, 4vw, 2rem); /* Responsive gap */
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-subtle);
+            padding: clamp(2rem, 5vw, 2.5rem); /* Responsive padding */
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: var(--gradient-1);
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover::before {
+            transform: translateX(0);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-cyan);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .feature-icon {
+            width: clamp(50px, 8vw, 60px); /* Responsive icon size */
+            height: clamp(50px, 8vw, 60px);
+            background: var(--gradient-1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(1.2rem, 3vw, 1.5rem); /* Responsive font size */
+            margin-bottom: clamp(1rem, 3vw, 1.5rem); /* Responsive margin */
+        }
+
+        .feature-card h3 {
+            font-size: clamp(1.2rem, 3vw, 1.3rem); /* Responsive font size */
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            font-size: clamp(0.9rem, 2.5vw, 1rem); /* Responsive font size */
+        }
+
+        /* Assessment Section */
+        .assessment {
+            padding: clamp(4rem, 10vw, 6rem) clamp(1rem, 5vw, 2rem); /* Responsive padding */
+            background: var(--primary-bg);
+            position: relative;
+        }
+
+        .assessment-content {
+            text-align: center;
+            margin-bottom: clamp(2rem, 5vw, 4rem); /* Responsive margin */
+        }
+
+        .assessment-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(clamp(250px, 35vw, 280px), 1fr)); /* Responsive grid */
+            gap: clamp(1.5rem, 4vw, 2rem); /* Responsive gap */
+            margin: clamp(2rem, 5vw, 4rem) 0; /* Responsive margin */
+        }
+
+        .step {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-subtle);
+            padding: clamp(2rem, 5vw, 2.5rem); /* Responsive padding */
+            border-radius: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .step:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-purple);
+        }
+
+        .step-number {
+            width: clamp(40px, 7vw, 50px); /* Responsive size */
+            height: clamp(40px, 7vw, 50px);
+            background: var(--gradient-2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto clamp(1rem, 3vw, 1.5rem); /* Responsive margin */
+            font-weight: 800;
+            font-size: clamp(1rem, 2.5vw, 1.2rem); /* Responsive font size */
+            color: white;
+        }
+
+        .step h3 {
+            font-size: clamp(1.1rem, 3vw, 1.2rem); /* Responsive font size */
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .step p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            font-size: clamp(0.9rem, 2.5vw, 1rem); /* Responsive font size */
+        }
+
+        /* Target Audience */
+        .audience {
+            padding: clamp(4rem, 10vw, 6rem) clamp(1rem, 5vw, 2rem); /* Responsive padding */
+            background: var(--secondary-bg);
+        }
+
+        .audience-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(clamp(280px, 40vw, 300px), 1fr)); /* Responsive grid */
+            gap: clamp(1.5rem, 4vw, 2rem); /* Responsive gap */
+            margin-top: clamp(2rem, 5vw, 4rem); /* Responsive margin */
+        }
+
+        .audience-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-subtle);
+            padding: clamp(2rem, 5vw, 2.5rem); /* Responsive padding */
+            border-radius: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .audience-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: var(--gradient-1);
+            border-radius: 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+
+        .audience-card:hover::before {
+            opacity: 1;
+        }
+
+        .audience-card:hover {
+            transform: scale(1.02);
+            border-color: transparent;
+        }
+
+        .audience-icon {
+            width: clamp(50px, 8vw, 60px); /* Responsive icon size */
+            height: clamp(50px, 8vw, 60px);
+            background: var(--gradient-3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(1.2rem, 3vw, 1.5rem); /* Responsive font size */
+            margin: 0 auto clamp(1rem, 3vw, 1.5rem); /* Responsive margin */
+        }
+
+        /* Stats Section */
+        .stats {
+            background: var(--primary-bg);
+            padding: clamp(4rem, 10vw, 6rem) clamp(1rem, 5vw, 2rem); /* Responsive padding */
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(clamp(180px, 30vw, 200px), 1fr)); /* Responsive grid */
+            gap: clamp(2rem, 5vw, 3rem); /* Responsive gap */
+            margin-top: clamp(2rem, 5vw, 4rem); /* Responsive margin */
+        }
+
+        .stat-item {
+            padding: clamp(1.5rem, 4vw, 2rem); /* Responsive padding */
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-green);
+        }
+
+        .stat-item .stat-number {
+            font-size: clamp(2rem, 5vw, 3rem); /* Responsive font size */
+            font-weight: 800;
+            color: var(--accent-cyan);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .stat-item .stat-label {
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: clamp(0.9rem, 2.5vw, 1rem); /* Responsive font size */
+        }
+
+        /* Footer */
+        footer {
+            background: var(--secondary-bg);
+            border-top: 1px solid var(--border-subtle);
+            padding: clamp(3rem, 8vw, 4rem) clamp(1rem, 5vw, 2rem) clamp(1.5rem, 4vw, 2rem); /* Responsive padding */
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(clamp(220px, 30vw, 250px), 1fr)); /* Responsive grid */
+            gap: clamp(2rem, 5vw, 3rem); /* Responsive gap */
+            margin-bottom: clamp(2rem, 5vw, 3rem); /* Responsive margin */
+        }
+
+        .footer-section h3 {
+            color: var(--text-primary);
+            font-weight: 700;
+            margin-bottom: clamp(1rem, 3vw, 1.5rem); /* Responsive margin */
+            font-size: clamp(1rem, 2.5vw, 1.1rem); /* Responsive font size */
+        }
+
+        .footer-section a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            display: block;
+            margin-bottom: clamp(0.5rem, 2vw, 0.8rem); /* Responsive margin */
+            transition: color 0.3s ease;
+            font-weight: 500;
+            font-size: clamp(0.9rem, 2.5vw, 1rem); /* Responsive font size */
+        }
+
+        .footer-section a:hover {
+            color: var(--accent-cyan);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: clamp(1.5rem, 4vw, 2rem); /* Responsive padding */
+            border-top: 1px solid var(--border-subtle);
+            color: var(--text-muted);
+            font-size: clamp(0.8rem, 2vw, 0.9rem); /* Responsive font size */
+        }
+
+        /* Mobile Menu */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: clamp(1.2rem, 3vw, 1.5rem); /* Responsive font size */
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .hero-content {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+                text-align: center;
+            }
+
+            .hero-stats {
+                justify-content: center;
+            }
+
+            .hero-visual {
+                margin-top: 2rem;
+            }
+
+            .hero-card {
+                max-width: 350px;
+                margin: 0 auto;
+            }
+
+            .features-grid,
+            .assessment-steps,
+            .audience-grid,
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .hero h1 {
+                font-size: clamp(2rem, 8vw, 3rem); /* Smaller font for mobile */
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .hero-buttons .btn-primary,
+            .hero-buttons .btn-secondary {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+            }
+
+            .section-title {
+                font-size: clamp(1.8rem, 6vw, 2.5rem); /* Smaller font for mobile */
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo {
+                font-size: clamp(1.2rem, 5vw, 1.5rem); /* Smaller logo for very small screens */
+            }
+
+            .cta-btn {
+                padding: 0.6rem 1.2rem;
+                font-size: clamp(0.8rem, 3vw, 0.9rem);
+            }
+
+            .hero-card {
+                padding: 1.5rem;
+                max-width: 100%;
+            }
+
+            .hero-stats {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .stat {
+                text-align: center;
+                margin-bottom: 1rem;
+            }
+
+            .feature-card,
+            .step,
+            .audience-card,
+            .stat-item {
+                padding: 1.5rem;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .footer-section a {
+                text-align: center;
+            }
+        }
+
+        @media (min-width: 1920px) {
+            .container {
+                max-width: 1600px; /* Larger container for ultra-wide screens */
+            }
+
+            .hero h1 {
+                font-size: clamp(4rem, 5vw, 5rem); /* Larger font for large screens */
+            }
+
+            .section-title {
+                font-size: clamp(3rem, 4vw, 3.5rem); /* Larger section title */
+            }
+        }
+
+        /* Animation Classes */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: clamp(16px, 3vw, 20px); /* Responsive size */
+            height: clamp(16px, 3vw, 20px);
+            border: 2px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: var(--accent-cyan);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Glassmorphism utility */
+        .glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-subtle);
+        }
+
+        /* Gradient text utility */
+        .gradient-text {
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <nav>
+            <div class="logo">Vision U</div>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#assessment">Assessment</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            <button class="mobile-menu-btn">☰</button>
+            <button class="cta-btn" onclick="startAssessment()">Start Now</button>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-grid"></div>
+        <div class="hero-content">
+            <div class="hero-text fade-in">
+                <h1>See Your Future Clearly</h1>
+                <p class="subtitle">AI-powered career guidance that understands you. Get personalized recommendations, industry insights, and a clear roadmap to your dream career.</p>
+                <div class="hero-buttons">
+                    <button class="btn-primary" onclick="startAssessment()">
+                        🚀 Take Assessment
+                    </button>
+                    <a href="#features" class="btn-secondary">
+                        ⚡ Explore Features
+                    </a>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <div class="stat-number" data-count="15000">0</div>
+                        <div class="stat-label">Students Guided</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number" data-count="500">0</div>
+                        <div class="stat-label">Career Paths</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number" data-count="96">0</div>
+                        <div class="stat-label">% Success Rate</div>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-visual fade-in">
+                <div class="hero-card glass">
+                    <h3 style="margin-bottom: 1rem; color: var(--text-primary);">🎯 Smart Career Matching</h3>
+                    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                        <div style="width: clamp(30px, 8vw, 40px); height: clamp(30px, 8vw, 40px); background: var(--gradient-1); border-radius: 50%;"></div>
+                        <div>
+                            <div style="color: var(--text-primary); font-weight: 600;">AI Analysis Complete</div>
+                            <div style="color: var(--text-secondary); font-size: clamp(0.8rem, 2.5vw, 0.9rem);">Processing your interests...</div>
+                        </div>
+                    </div>
+                    <div style="height: 8px; background: var(--border-subtle); border-radius: 4px; overflow: hidden;">
+                        <div style="width: 85%; height: 100%; background: var(--gradient-1); border-radius: 4px; animation: progress 2s ease-in-out infinite;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="container">
+            <h2 class="section-title fade-in">Powerful Features</h2>
+            <div class="features-grid">
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">🤖</div>
+                    <h3>AI-Powered Analysis</h3>
+                    <p>Advanced machine learning algorithms analyze your personality, interests, and aptitude to provide highly accurate career recommendations tailored specifically for you.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">🗺️</div>
+                    <h3>Personalized Roadmaps</h3>
+                    <p>Get detailed step-by-step career paths with timelines, required skills, educational milestones, and actionable next steps to reach your goals.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">📊</div>
+                    <h3>Industry Insights</h3>
+                    <p>Stay ahead with real-time market trends, salary insights, growth projections, and emerging opportunities in your field of interest.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">🌐</div>
+                    <h3>Multilingual Support</h3>
+                    <p>Access career guidance in Hindi, Bengali, Tamil, Marathi, and other regional languages, making it truly accessible across India.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">⚡</div>
+                    <h3>24/7 Availability</h3>
+                    <p>Get instant career guidance anytime, anywhere. Our AI counselor never sleeps and is always ready to help you make informed decisions.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">🎮</div>
+                    <h3>Interactive Experience</h3>
+                    <p>Engaging gamified assessments and visual career maps make the journey of career discovery enjoyable and memorable.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Assessment Section -->
+    <section id="assessment" class="assessment">
+        <div class="container">
+            <div class="assessment-content fade-in">
+                <h2 class="section-title">How It Works</h2>
+                <p style="font-size: clamp(1rem, 2.5vw, 1.2rem); color: var(--text-secondary); max-width: 600px; margin: 0 auto;">Our comprehensive 4-step process combines psychology, technology, and industry expertise to guide your career decisions.</p>
+            </div>
+            <div class="assessment-steps">
+                <div class="step fade-in">
+                    <div class="step-number">1</div>
+                    <h3>Interest Discovery</h3>
+                    <p>Explore what truly motivates and excites you through scientifically designed questionnaires and interactive activities.</p>
+                </div>
+                <div class="step fade-in">
+                    <div class="step-number">2</div>
+                    <h3>Aptitude Assessment</h3>
+                    <p>Evaluate your natural talents and cognitive abilities across logical, verbal, numerical, and spatial reasoning domains.</p>
+                </div>
+                <div class="step fade-in">
+                    <div class="step-number">3</div>
+                    <h3>Personality Profiling</h3>
+                    <p>Understand your work preferences, leadership style, team dynamics, and ideal work environment through proven psychological frameworks.</p>
+                </div>
+                <div class="step fade-in">
+                    <div class="step-number">4</div>
+                    <h3>AI Recommendations</h3>
+                    <p>Receive personalized career matches with detailed roadmaps, skill requirements, and success strategies based on your unique profile.</p>
+                </div>
+            </div>
+            <div style="text-align: center;">
+                <button class="btn-primary" onclick="startAssessment()" style="margin-top: clamp(1.5rem, 4vw, 2rem); font-size: clamp(1rem, 2.5vw, 1.1rem);">
+                    🎯 Begin Your Assessment Journey
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Target Audience -->
+    <section class="audience">
+        <div class="container">
+            <h2 class="section-title fade-in">Who We Empower</h2>
+            <div class="audience-grid">
+                <div class="audience-card fade-in">
+                    <div class="audience-icon">🎓</div>
+                    <h3>High School Students</h3>
+                    <p>Classes 9-12 students at crucial decision points, choosing streams and planning their academic journey with confidence.</p>
+                </div>
+                <div class="audience-card fade-in">
+                    <div class="audience-icon">🔬</div>
+                    <h3>College Students</h3>
+                    <p>Undergraduate students seeking to align their studies with market opportunities and plan their career transitions effectively.</p>
+                </div>
+                <div class="audience-card fade-in">
+                    <div class="audience-icon">👨‍👩‍👧‍👦</div>
+                    <h3>Parents & Educators</h3>
+                    <p>Support your children and students with data-driven insights and remove guesswork from career counseling conversations.</p>
+                </div>
+                <div class="audience-card fade-in">
+                    <div class="audience-icon">🏫</div>
+                    <h3>Educational Institutions</h3>
+                    <p>Schools, colleges, and coaching institutes looking to provide comprehensive, scalable career guidance to their students.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats">
+        <div class="container">
+            <h2 class="section-title fade-in">Our Impact</h2>
+            <div class="stats-grid">
+                <div class="stat-item fade-in">
+                    <span class="stat-number" data-count="15000">0</span>
+                    <div class="stat-label">Students Guided</div>
+                </div>
+                <div class="stat-item fade-in">
+                    <span class="stat-number" data-count="500">0</span>
+                    <div class="stat-label">Career Options</div>
+                </div>
+                <div class="stat-item fade-in">
+                    <span class="stat-number" data-count="96">0</span>
+                    <div class="stat-label">% Accuracy Rate</div>
+                </div>
+                <div class="stat-item fade-in">
+                    <span class="stat-number" data-count="24">0</span>
+                    <div class="stat-label">Hours Support</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contact">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Vision U</h3>
+                    <p style="color: var(--text-secondary); line-height: 1.6; margin-bottom: 1rem;">Empowering the next generation with AI-driven career guidance. Your future starts with the right guidance today.</p>
+                    <div style="display: flex; gap: clamp(0.5rem, 2vw, 1rem); justify-content: center;">
+                        <a href="#" style="color: var(--text-secondary); font-size: clamp(1rem, 3vw, 1.2rem);">📧</a>
+                        <a href="#" style="color: var(--text-secondary); font-size: clamp(1rem, 3vw, 1.2rem);">💬</a>
+                        <a href="#" style="color: var(--text-secondary); font-size: clamp(1rem, 3vw, 1.2rem);">📱</a>
+                        <a href="#" style="color: var(--text-secondary); font-size: clamp(1rem, 3vw, 1.2rem);">🔗</a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h3>Platform</h3>
+                    <a href="#home">Home</a>
+                    <a href="#features">Features</a>
+                    <a href="#assessment">Assessment</a>
+                    <a href="#">Career Paths</a>
+                    <a href="#">Industry Insights</a>
+                </div>
+                <div class="footer-section">
+                    <h3>Resources</h3>
+                    <a href="#">Career Guide</a>
+                    <a href="#">Blog</a>
+                    <a href="#">Success Stories</a>
+                    <a href="#">FAQ</a>
+                    <a href="#">Documentation</a>
+                </div>
+                <div class="footer-section">
+                    <h3>Support</h3>
+                    <a href="#">Help Center</a>
+                    <a href="#">Contact Us</a>
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                    <a href="#">Feedback</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Vision U. All rights reserved. Built with ❤️ for India's future leaders.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Intersection Observer for fade-in animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animationDelay = Math.random() * 0.3 + 's';
+                    entry.target.classList.add('fade-in');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Animated counter for stats
+        function animateCounter(element, target) {
+            const duration = 2500;
+            const start = 0;
+            const startTime = performance.now();
+
+            function updateCounter(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const current = Math.floor(progress * target);
+                element.textContent = current.toLocaleString();
+
+                if (progress < 1) {
+                    requestAnimationFrame(updateCounter);
+                } else {
+                    element.textContent = target.toLocaleString() + (target === 96 ? '%' : target === 24 ? '/7' : '+');
+                }
+            }
+
+            requestAnimationFrame(updateCounter);
+        }
+
+        // Trigger counter animation when stats section is visible
+        const statsElements = document.querySelectorAll('.stat-number');
+        const statsObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    statsElements.forEach(el => {
+                        const target = parseInt(el.getAttribute('data-count'));
+                        animateCounter(el, target);
+                    });
+                    statsObserver.unobserve(entry.target);
+                }
+            });
+        });
+
+        const statsSection = document.querySelector('.stats');
+        if (statsSection) {
+            statsObserver.observe(statsSection);
+        }
+
+        // Assessment functionality with modern UI feedback
+        function startAssessment() {
+            const button = event.target;
+            const originalText = button.innerHTML;
+            
+            button.innerHTML = '<span class="loading"></span> Initializing Assessment...';
+            button.disabled = true;
+            button.style.opacity = '0.8';
+
+            // Simulate assessment initialization
+            setTimeout(() => {
+                // Create modern modal-like notification
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: var(--card-bg);
+                    border: 1px solid var(--border-subtle);
+                    border-radius: 20px;
+                    padding: clamp(1.5rem, 5vw, 2.5rem);
+                    max-width: clamp(300px, 90vw, 500px);
+                    width: 90%;
+                    backdrop-filter: blur(20px);
+                    z-index: 10000;
+                    text-align: center;
+                    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+                `;
+                
+                notification.innerHTML = `
+                    <div style="font-size: clamp(2rem, 8vw, 3rem); margin-bottom: 1rem;">🚀</div>
+                    <h3 style="color: var(--text-primary); margin-bottom: 1rem; font-size: clamp(1.2rem, 4vw, 1.5rem);">Assessment Ready!</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 2rem; line-height: 1.6; font-size: clamp(0.9rem, 2.5vw, 1rem);">
+                        Your personalized career assessment is ready to begin. This comprehensive evaluation will take approximately 15-20 minutes and includes:
+                    </p>
+                    <div style="text-align: left; margin-bottom: 2rem;">
+                        <div style="margin-bottom: 0.8rem; color: var(--text-secondary); font-size: clamp(0.9rem, 2.5vw, 1rem);">
+                            <span style="color: var(--accent-cyan);">✓</span> Interest & Passion Discovery
+                        </div>
+                        <div style="margin-bottom: 0.8rem; color: var(--text-secondary); font-size: clamp(0.9rem, 2.5vw, 1rem);">
+                            <span style="color: var(--accent-cyan);">✓</span> Aptitude & Skills Evaluation  
+                        </div>
+                        <div style="margin-bottom: 0.8rem; color: var(--text-secondary); font-size: clamp(0.9rem, 2.5vw, 1rem);">
+                            <span style="color: var(--accent-cyan);">✓</span> Personality Profiling
+                        </div>
+                        <div style="margin-bottom: 0.8rem; color: var(--text-secondary); font-size: clamp(0.9rem, 2.5vw, 1rem);">
+                            <span style="color: var(--accent-cyan);">✓</span> AI-Powered Career Matching
+                        </div>
+                    </div>
+                    <button onclick="this.parentElement.remove()" style="
+                        background: var(--gradient-1);
+                        color: white;
+                        border: none;
+                        padding: clamp(0.8rem, 2vw, 1rem) clamp(1.5rem, 3vw, 2rem);
+                        border-radius: 12px;
+                        cursor: pointer;
+                        font-weight: 600;
+                        font-size: clamp(0.9rem, 2.5vw, 1rem);
+                        margin-right: 1rem;
+                        transition: all 0.3s ease;
+                    ">Begin Assessment</button>
+                    <button onclick="this.parentElement.remove()" style="
+                        background: transparent;
+                        color: var(--text-secondary);
+                        border: 1px solid var(--border-subtle);
+                        padding: clamp(0.8rem, 2vw, 1rem) clamp(1.5rem, 3vw, 2rem);
+                        border-radius: 12px;
+                        cursor: pointer;
+                        font-weight: 600;
+                        font-size: clamp(0.9rem, 2.5vw, 1rem);
+                        transition: all 0.3s ease;
+                    ">Maybe Later</button>
+                `;
+
+                // Create backdrop
+                const backdrop = document.createElement('div');
+                backdrop.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.8);
+                    z-index: 9999;
+                    backdrop-filter: blur(5px);
+                `;
+                
+                backdrop.onclick = () => {
+                    backdrop.remove();
+                    notification.remove();
+                };
+
+                document.body.appendChild(backdrop);
+                document.body.appendChild(notification);
+                
+                button.innerHTML = originalText;
+                button.disabled = false;
+                button.style.opacity = '1';
+            }, 2000);
+        }
+
+        // Enhanced mobile menu functionality
+        const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+        const navLinks = document.querySelector('.nav-links');
+
+        if (mobileMenuBtn) {
+            mobileMenuBtn.addEventListener('click', () => {
+                const isOpen = navLinks.style.display === 'flex';
+                
+                if (isOpen) {
+                    navLinks.style.display = 'none';
+                    mobileMenuBtn.innerHTML = '☰';
+                } else {
+                    navLinks.style.cssText = `
+                        display: flex;
+                        position: absolute;
+                        top: 100%;
+                        left: 0;
+                        right: 0;
+                        background: var(--card-bg);
+                        backdrop-filter: blur(20px);
+                        border: 1px solid var(--border-subtle);
+                        border-radius: 0 0 20px 20px;
+                        flex-direction: column;
+                        padding: clamp(1.5rem, 5vw, 2rem);
+                        gap: clamp(0.8rem, 3vw, 1rem);
+                        margin-top: 1px;
+                        z-index: 1000;
+                    `;
+                    mobileMenuBtn.innerHTML = '✕';
+                }
+            });
+
+            // Close mobile menu when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!navLinks.contains(e.target) && !mobileMenuBtn.contains(e.target) && navLinks.style.display === 'flex') {
+                    navLinks.style.display = 'none';
+                    mobileMenuBtn.innerHTML = '☰';
+                }
+            });
+        }
+
+        // Enhanced header scroll effect
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            const scrolled = window.scrollY > 100;
+            
+            if (scrolled) {
+                header.style.background = 'rgba(10, 10, 10, 0.95)';
+                header.style.borderBottom = '1px solid rgba(0, 212, 255, 0.2)';
+            } else {
+                header.style.background = 'rgba(10, 10, 10, 0.8)';
+                header.style.borderBottom = '1px solid var(--border-subtle)';
+            }
+        });
+
+        // Add progress bar animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes progress {
+                0% { width: 0%; }
+                50% { width: 85%; }
+                100% { width: 95%; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Language selector with modern design
+        window.addEventListener('load', () => {
+            const nav = document.querySelector('nav');
+            const langSelector = document.createElement('select');
+            langSelector.innerHTML = `
+                <option value="en">🇺🇸 English</option>
+                <option value="hi">🇮🇳 हिंदी</option>
+                <option value="bn">🇧🇩 বাংলা</option>
+                <option value="ta">🇮🇳 தமிழ்</option>
+                <option value="mr">🇮🇳 मराठी</option>
+                <option value="gu">🇮🇳 ગુજરાતી</option>
+            `;
+            
+            langSelector.style.cssText = `
+                background: var(--glass-bg);
+                backdrop-filter: blur(20px);
+                border: 1px solid var(--border-subtle);  
+                color: var(--text-primary);
+                padding: clamp(0.4rem, 2vw, 0.6rem) clamp(0.8rem, 2vw, 1rem);
+                border-radius: 8px;
+                margin-left: clamp(0.5rem, 2vw, 1rem);
+                cursor: pointer;
+                font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+                transition: all 0.3s ease;
+            `;
+            
+            langSelector.addEventListener('change', (e) => {
+                const langNames = {
+                    en: 'English', hi: 'Hindi', bn: 'Bengali', 
+                    ta: 'Tamil', mr: 'Marathi', gu: 'Gujarati'
+                };
+                
+                // Modern notification for language change
+                const toast = document.createElement('div');
+                toast.style.cssText = `
+                    position: fixed;
+                    top: clamp(80px, 10vw, 100px);
+                    right: clamp(10px, 5vw, 20px);
+                    background: var(--card-bg);
+                    border: 1px solid var(--accent-cyan);
+                    border-radius: 12px;
+                    padding: clamp(0.8rem, 3vw, 1rem) clamp(1rem, 3vw, 1.5rem);
+                    color: var(--text-primary);
+                    z-index: 10000;
+                    backdrop-filter: blur(20px);
+                    transform: translateX(100%);
+                    transition: transform 0.3s ease;
+                    font-size: clamp(0.9rem, 2.5vw, 1rem);
+                `;
+                toast.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: clamp(0.3rem, 2vw, 0.5rem);">
+                        <span style="color: var(--accent-cyan);">🌐</span>
+                        Language: ${langNames[e.target.value]}
+                    </div>
+                `;
+                
+                document.body.appendChild(toast);
+                setTimeout(() => toast.style.transform = 'translateX(0)', 100);
+                setTimeout(() => {
+                    toast.style.transform = 'translateX(100%)';
+                    setTimeout(() => toast.remove(), 300);
+                }, 2000);
+            });
+            
+            const ctaBtn = document.querySelector('.cta-btn');
+            nav.insertBefore(langSelector, ctaBtn);
+        });
+
+        // Add some particle effect on hero (subtle)
+        function createParticles() {
+            const hero = document.querySelector('.hero');
+            const particleCount = window.innerWidth < 768 ? 20 : 50; // Fewer particles on mobile
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.style.cssText = `
+                    position: absolute;
+                    width: clamp(1px, 0.5vw, 2px);
+                    height: clamp(1px, 0.5vw, 2px);
+                    background: var(--accent-cyan);
+                    border-radius: 50%;
+                    opacity: 0.3;
+                    animation: float-particle ${5 + Math.random() * 10}s infinite ease-in-out;
+                    left: ${Math.random() * 100}%;
+                    top: ${Math.random() * 100}%;
+                    animation-delay: ${Math.random() * 5}s;
+                `;
+                hero.appendChild(particle);
+            }
+        }
+
+        // Add particle animation
+        const particleStyle = document.createElement('style');
+        particleStyle.textContent = `
+            @keyframes float-particle {
+                0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.3; }
+                50% { transform: translateY(-20px) rotate(180deg); opacity: 0.8; }
+            }
+        `;
+        document.head.appendChild(particleStyle);
+        
+        // Initialize particles after a short delay
+        setTimeout(createParticles, 1000);
+    </script>
+</body>
+</html>
