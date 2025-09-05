@@ -1,0 +1,122 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Chat - Vision U</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='chat.css') }}">
+</head>
+<body>
+    <div class="background-effects">
+        <div class="hero-grid"></div>
+    </div>
+
+    <main class="chat-container">
+        <div class="questionnaire-container">
+            <div class="logo">Vision U</div>
+            <h2>Tell us about yourself</h2>
+            <form id="questionnaire-form">
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="age">Age</label>
+                    <input type="number" id="age" name="age" required>
+                </div>
+                <div class="form-group">
+                    <label for="education">Education</label>
+                    <input type="text" id="education" name="education" required>
+                </div>
+                <div class="form-group">
+                    <label for="interest">Interest</label>
+                    <input type="text" id="interest" name="interest" required>
+                </div>
+                <div class="form-group">
+                    <label for="hobby">Hobby</label>
+                    <input type="text" id="hobby" name="hobby" required>
+                </div>
+                <div class="form-group">
+                    <label for="prompt">Your Goal</label>
+                    <textarea id="prompt" name="prompt" rows="3" placeholder="Describe your career goals..."></textarea>
+                </div>
+                <button type="submit" class="submit-btn">Start Chat</button>
+            </form>
+        </div>
+        <div class="chat-interface-container">
+            <div class="chat-history" id="chat-history">
+                <!-- Chat messages will be appended here -->
+            </div>
+            <div class="chat-input">
+                <input type="text" id="chat-input" placeholder="Type your message...">
+                <button id="send-btn">Send</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const questionnaireForm = document.getElementById('questionnaire-form');
+        const chatHistory = document.getElementById('chat-history');
+        const chatInput = document.getElementById('chat-input');
+        const sendBtn = document.getElementById('send-btn');
+
+        questionnaireForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const formData = new FormData(questionnaireForm);
+            const userData = Object.fromEntries(formData.entries());
+
+            // Start the chat with a personalized message
+            const initialMessage = `Hello ${userData.name}, based on your profile, let's explore some career paths for a ${userData.age}-year-old with an interest in ${userData.interest}.`;
+            appendMessage('ai', initialMessage);
+
+            // Send the user data to the backend to get the initial AI response.
+            fetch('/ask', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ user_info: userData, prompt: userData.prompt })
+            })
+            .then(response => {
+                if (response.redirected) {
+                    window.location.href = response.url;
+                }
+            });
+        });
+
+        sendBtn.addEventListener('click', () => {
+            const message = chatInput.value;
+            if (message.trim() !== '') {
+                appendMessage('user', message);
+                chatInput.value = '';
+                
+                const formData = new FormData(questionnaireForm);
+                const userData = Object.fromEntries(formData.entries());
+
+                fetch('/ask', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ user_info: userData, prompt: message })
+                })
+                .then(response => {
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                    }
+                });
+            }
+        });
+
+        function appendMessage(sender, message) {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('chat-message', sender);
+            messageElement.innerHTML = `<div class="message-bubble">${message}</div>`;
+            chatHistory.appendChild(messageElement);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }
+    </script>
+
+</body>
+</html>
