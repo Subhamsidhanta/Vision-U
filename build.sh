@@ -2,6 +2,12 @@
 # exit on error
 set -o errexit
 
-pip install -r requirements.txt
+# Update & install system dependencies
+apt-get update && apt-get install -y \
+    libpq-dev \
+    gcc \
+    wkhtmltopdf
 
-apt-get update && apt-get install -y wkhtmltopdf
+# Install Python dependencies
+pip install --upgrade pip
+pip install -r requirements.txt
