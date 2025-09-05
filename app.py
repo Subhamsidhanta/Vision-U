@@ -1,6 +1,5 @@
 
 import markdown
-import pdfkit
 from flask import Flask, render_template, request, redirect, session, url_for, flash, get_flashed_messages, make_response
 import google.generativeai as genai
 from flask_sqlalchemy import SQLAlchemy
