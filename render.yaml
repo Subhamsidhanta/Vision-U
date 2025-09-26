@@ -2,6 +2,7 @@ services:
   - type: web
     name: vision-u
     env: python
+    plan: free
     buildCommand: "./build.sh"
     startCommand: "gunicorn app:app"
     envVars:
