@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Login - Vision U</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+</head>
+<body>
+    <div class="background-effects">
+        <div class="hero-grid"></div>
+    </div>
+
+    <main class="login-container">
+        <div class="login-card">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <ul class="flashes">
+                        {% for category, message in messages %}
+                            <li class="{{ category }}">{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
+            <div class="logo">Vision U</div>
+            <h2>Welcome back to the future.</h2>
+            <form method="post">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="login-btn">Log In</button>
+            </form>
+            <div class="extra-links">
+                <a href="javascript:void(0)">Forgot Password?</a>
+                <a href="/register">Create an Account</a>
+            </div>
+        </div>
+        <div class="back-to-home">
+             <a href="{{ url_for('index') }}">← Back to Home</a>
+        </div>
+    </main>
+
+</body>
+</html>

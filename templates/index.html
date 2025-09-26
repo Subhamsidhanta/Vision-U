@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=devicwhe-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Vision U - See Your Future Clearly</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <nav>
+            <div class="logo">Vision U</div>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#assessment">Assessment</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            <button class="mobile-menu-btn">☰</button>
+            <button class="cta-btn" onclick="startAssessment()">Start Now</button>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-grid"></div>
+        <div class="hero-content">
+            <div class="hero-text fade-in">
+                <h1>See Your Future Clearly</h1>
+                <p class="subtitle">AI-powered career guidance that understands you. Get personalized recommendations, industry insights, and a clear roadmap to your dream career.</p>
+                <div class="hero-buttons">
+                    <button class="btn-primary" onclick="startAssessment()">
+                        🚀 Take Assessment
+                    </button>
+                    <a href="#features" class="btn-secondary">
+                        ⚡ Explore Features
+                    </a>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <div class="stat-number" data-count="15000">0</div>
+                        <div class="stat-label">Students Guided</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number" data-count="500">0</div>
+                        <div class="stat-label">Career Paths</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number" data-count="96">0</div>
+                        <div class="stat-label">% Success Rate</div>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-visual fade-in">
+                <div class="hero-card glass">
+                    <h3 style="margin-bottom: 1rem; color: var(--text-primary);">🎯 Smart Career Matching</h3>
+                    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                        <div style="width: clamp(30px, 8vw, 40px); height: clamp(30px, 8vw, 40px); background: var(--gradient-1); border-radius: 50%;"></div>
+                        <div>
+                            <div style="color: var(--text-primary); font-weight: 600;">AI Analysis Complete</div>
+                            <div style="color: var(--text-secondary); font-size: clamp(0.8rem, 2.5vw, 0.9rem);">Processing your interests...</div>
+                        </div>
+                    </div>
+                    <div style="height: 8px; background: var(--border-subtle); border-radius: 4px; overflow: hidden;">
+                        <div style="width: 85%; height: 100%; background: var(--gradient-1); border-radius: 4px; animation: progress 2s ease-in-out infinite;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="container">
+            <h2 class="section-title fade-in">Powerful Features</h2>
+            <div class="features-grid">
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">🤖</div>
+                    <h3>AI-Powered Analysis</h3>
+                    <p>Advanced machine learning algorithms analyze your personality, interests, and aptitude to provide highly accurate career recommendations tailored specifically for you.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">🗺️</div>
+                    <h3>Personalized Roadmaps</h3>
+                    <p>Get detailed step-by-step career paths with timelines, required skills, educational milestones, and actionable next steps to reach your goals.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">📊</div>
+                    <h3>Industry Insights</h3>
+                    <p>Stay ahead with real-time market trends, salary insights, growth projections, and emerging opportunities in your field of interest.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">🌐</div>
+                    <h3>Multilingual Support</h3>
+                    <p>Access career guidance in Hindi, Bengali, Tamil, Marathi, and other regional languages, making it truly accessible across India.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">⚡</div>
+                    <h3>24/7 Availability</h3>
+                    <p>Get instant career guidance anytime, anywhere. Our AI counselor never sleeps and is always ready to help you make informed decisions.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">🎮</div>
+                    <h3>Interactive Experience</h3>
+                    <p>Engaging gamified assessments and visual career maps make the journey of career discovery enjoyable and memorable.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Assessment Section -->
+    <section id="assessment" class="assessment">
+        <div class="container">
+            <div class="assessment-content fade-in">
+                <h2 class="section-title">How It Works</h2>
+                <p style="font-size: clamp(1rem, 2.5vw, 1.2rem); color: var(--text-secondary); max-width: 600px; margin: 0 auto;">Our comprehensive 4-step process combines psychology, technology, and industry expertise to guide your career decisions.</p>
+            </div>
+            <div class="assessment-steps">
+                <div class="step fade-in">
+                    <div class="step-number">1</div>
+                    <h3>Interest Discovery</h3>
+                    <p>Explore what truly motivates and excites you through scientifically designed questionnaires and interactive activities.</p>
+                </div>
+                <div class="step fade-in">
+                    <div class="step-number">2</div>
+                    <h3>Aptitude Assessment</h3>
+                    <p>Evaluate your natural talents and cognitive abilities across logical, verbal, numerical, and spatial reasoning domains.</p>
+                </div>
+                <div class="step fade-in">
+                    <div class="step-number">3</div>
+                    <h3>Personality Profiling</h3>
+                    <p>Understand your work preferences, leadership style, team dynamics, and ideal work environment through proven psychological frameworks.</p>
+                </div>
+                <div class="step fade-in">
+                    <div class="step-number">4</div>
+                    <h3>AI Recommendations</h3>
+                    <p>Receive personalized career matches with detailed roadmaps, skill requirements, and success strategies based on your unique profile.</p>
+                </div>
+            </div>
+            <div style="text-align: center;">
+                <button class="btn-primary" onclick="startAssessment()" style="margin-top: clamp(1.5rem, 4vw, 2rem); font-size: clamp(1rem, 2.5vw, 1.1rem);">
+                    🎯 Begin Your Assessment Journey
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Target Audience -->
+    <section class="audience">
+        <div class="container">
+            <h2 class="section-title fade-in">Who We Empower</h2>
+            <div class="audience-grid">
+                <div class="audience-card fade-in">
+                    <div class="audience-icon">🎓</div>
+                    <h3>High School Students</h3>
+                    <p>Classes 9-12 students at crucial decision points, choosing streams and planning their academic journey with confidence.</p>
+                </div>
+                <div class="audience-card fade-in">
+                    <div class="audience-icon">🔬</div>
+                    <h3>College Students</h3>
+                    <p>Undergraduate students seeking to align their studies with market opportunities and plan their career transitions effectively.</p>
+                </div>
+                <div class="audience-card fade-in">
+                    <div class="audience-icon">👨‍👩‍👧‍👦</div>
+                    <h3>Parents & Educators</h3>
+                    <p>Support your children and students with data-driven insights and remove guesswork from career counseling conversations.</p>
+                </div>
+                <div class="audience-card fade-in">
+                    <div class="audience-icon">🏫</div>
+                    <h3>Educational Institutions</h3>
+                    <p>Schools, colleges, and coaching institutes looking to provide comprehensive, scalable career guidance to their students.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats">
+        <div class="container">
+            <h2 class="section-title fade-in">Our Impact</h2>
+            <div class="stats-grid">
+                <div class="stat-item fade-in">
+                    <span class="stat-number" data-count="15000">0</span>
+                    <div class="stat-label">Students Guided</div>
+                </div>
+                <div class="stat-item fade-in">
+                    <span class="stat-number" data-count="500">0</span>
+                    <div class="stat-label">Career Options</div>
+                </div>
+                <div class="stat-item fade-in">
+                    <span class="stat-number" data-count="96">0</span>
+                    <div class="stat-label">% Accuracy Rate</div>
+                </div>
+                <div class="stat-item fade-in">
+                    <span class="stat-number" data-count="24">0</span>
+                    <div class="stat-label">Hours Support</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contact">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Vision U</h3>
+                    <p style="color: var(--text-secondary); line-height: 1.6; margin-bottom: 1rem;">Empowering the next generation with AI-driven career guidance. Your future starts with the right guidance today.</p>
+                    <div style="display: flex; gap: clamp(0.5rem, 2vw, 1rem); justify-content: center;">
+                        <a href="#" style="color: var(--text-secondary); font-size: clamp(1rem, 3vw, 1.2rem);">📧</a>
+                        <a href="#" style="color: var(--text-secondary); font-size: clamp(1rem, 3vw, 1.2rem);">💬</a>
+                        <a href="#" style="color: var(--text-secondary); font-size: clamp(1rem, 3vw, 1.2rem);">📱</a>
+                        <a href="#" style="color: var(--text-secondary); font-size: clamp(1rem, 3vw, 1.2rem);">🔗</a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h3>Platform</h3>
+                    <a href="#home">Home</a>
+                    <a href="#features">Features</a>
+                    <a href="#assessment">Assessment</a>
+                    <a href="#">Career Paths</a>
+                    <a href="#">Industry Insights</a>
+                </div>
+                <div class="footer-section">
+                    <h3>Resources</h3>
+                    <a href="#">Career Guide</a>
+                    <a href="#">Blog</a>
+                    <a href="#">Success Stories</a>
+                    <a href="#">FAQ</a>
+                    <a href="#">Documentation</a>
+                </div>
+                <div class="footer-section">
+                    <h3>Support</h3>
+                    <a href="#">Help Center</a>
+                    <a href="#">Contact Us</a>
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                    <a href="#">Feedback</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Vision U. All rights reserved. Built with ❤️ for India's future leaders.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Intersection Observer for fade-in animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animationDelay = Math.random() * 0.3 + 's';
+                    entry.target.classList.add('fade-in');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.fade-in').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Animated counter for stats
+        function animateCounter(element, target) {
+            const duration = 2500;
+            const start = 0;
+            const startTime = performance.now();
+
+            function updateCounter(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const current = Math.floor(progress * target);
+                element.textContent = current.toLocaleString();
+
+                if (progress < 1) {
+                    requestAnimationFrame(updateCounter);
+                } else {
+                    element.textContent = target.toLocaleString() + (target === 96 ? '%' : target === 24 ? '/7' : '+');
+                }
+            }
+
+            requestAnimationFrame(updateCounter);
+        }
+
+        // Trigger counter animation when stats section is visible
+        const statsElements = document.querySelectorAll('.stat-number');
+        const statsObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    statsElements.forEach(el => {
+                        const target = parseInt(el.getAttribute('data-count'));
+                        animateCounter(el, target);
+                    });
+                    statsObserver.unobserve(entry.target);
+                }
+            });
+        });
+
+        const statsSection = document.querySelector('.stats');
+        if (statsSection) {
+            statsObserver.observe(statsSection);
+        }
+
+        // Assessment functionality with modern UI feedback
+        function startAssessment() {
+            const button = event.target;
+            const originalText = button.innerHTML;
+            
+            button.innerHTML = '<span class="loading"></span> Initializing Assessment...';
+            button.disabled = true;
+            button.style.opacity = '0.8';
+
+            // Simulate assessment initialization
+            setTimeout(() => {
+                // Create modern modal-like notification
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: var(--card-bg);
+                    border: 1px solid var(--border-subtle);
+                    border-radius: 20px;
+                    padding: clamp(1.5rem, 5vw, 2.5rem);
+                    max-width: clamp(300px, 90vw, 500px);
+                    width: 90%;
+                    backdrop-filter: blur(20px);
+                    z-index: 10000;
+                    text-align: center;
+                    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+                `;
+                
+                notification.innerHTML = `
+                    <div style="font-size: clamp(2rem, 8vw, 3rem); margin-bottom: 1rem;">🚀</div>
+                    <h3 style="color: var(--text-primary); margin-bottom: 1rem; font-size: clamp(1.2rem, 4vw, 1.5rem);">Assessment Ready!</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 2rem; line-height: 1.6; font-size: clamp(0.9rem, 2.5vw, 1rem);">
+                        Your personalized career assessment is ready to begin. This comprehensive evaluation will take approximately 15-20 minutes and includes:
+                    </p>
+                    <div style="text-align: left; margin-bottom: 2rem;">
+                        <div style="margin-bottom: 0.8rem; color: var(--text-secondary); font-size: clamp(0.9rem, 2.5vw, 1rem);">
+                            <span style="color: var(--accent-cyan);">✓</span> Interest & Passion Discovery
+                        </div>
+                        <div style="margin-bottom: 0.8rem; color: var(--text-secondary); font-size: clamp(0.9rem, 2.5vw, 1rem);">
+                            <span style="color: var(--accent-cyan);">✓</span> Aptitude & Skills Evaluation  
+                        </div>
+                        <div style="margin-bottom: 0.8rem; color: var(--text-secondary); font-size: clamp(0.9rem, 2.5vw, 1rem);">
+                            <span style="color: var(--accent-cyan);">✓</span> Personality Profiling
+                        </div>
+                        <div style="margin-bottom: 0.8rem; color: var(--text-secondary); font-size: clamp(0.9rem, 2.5vw, 1rem);">
+                            <span style="color: var(--accent-cyan);">✓</span> AI-Powered Career Matching
+                        </div>
+                    </div>
+                    <button onclick="window.location.href='/login'" style="
+                        background: var(--gradient-1);
+                        color: white;
+                        border: none;
+                        padding: clamp(0.8rem, 2vw, 1rem) clamp(1.5rem, 3vw, 2rem);
+                        border-radius: 12px;
+                        cursor: pointer;
+                        font-weight: 600;
+                        font-size: clamp(0.9rem, 2.5vw, 1rem);
+                        margin-right: 1rem;
+                        transition: all 0.3s ease;
+                    ">Begin Assessment</button>
+                    <button onclick="this.parentElement.remove()" style="
+                        background: transparent;
+                        color: var(--text-secondary);
+                        border: 1px solid var(--border-subtle);
+                        padding: clamp(0.8rem, 2vw, 1rem) clamp(1.5rem, 3vw, 2rem);
+                        border-radius: 12px;
+                        cursor: pointer;
+                        font-weight: 600;
+                        font-size: clamp(0.9rem, 2.5vw, 1rem);
+                        transition: all 0.3s ease;
+                    ">Maybe Later</button>
+                `;
+
+                // Create backdrop
+                const backdrop = document.createElement('div');
+                backdrop.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.8);
+                    z-index: 9999;
+                    backdrop-filter: blur(5px);
+                `;
+                
+                backdrop.onclick = () => {
+                    backdrop.remove();
+                    notification.remove();
+                };
+
+                document.body.appendChild(backdrop);
+                document.body.appendChild(notification);
+                
+                button.innerHTML = originalText;
+                button.disabled = false;
+                button.style.opacity = '1';
+            }, 2000);
+        }
+
+        // Enhanced mobile menu functionality
+        const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+        const navLinks = document.querySelector('.nav-links');
+
+        if (mobileMenuBtn) {
+            mobileMenuBtn.addEventListener('click', () => {
+                const isOpen = navLinks.style.display === 'flex';
+                
+                if (isOpen) {
+                    navLinks.style.display = 'none';
+                    mobileMenuBtn.innerHTML = '☰';
+                } else {
+                    navLinks.style.cssText = `
+                        display: flex;
+                        position: absolute;
+                        top: 100%;
+                        left: 0;
+                        right: 0;
+                        background: var(--card-bg);
+                        backdrop-filter: blur(20px);
+                        border: 1px solid var(--border-subtle);
+                        border-radius: 0 0 20px 20px;
+                        flex-direction: column;
+                        padding: clamp(1.5rem, 5vw, 2rem);
+                        gap: clamp(0.8rem, 3vw, 1rem);
+                        margin-top: 1px;
+                        z-index: 1000;
+                    `;
+                    mobileMenuBtn.innerHTML = '✕';
+                }
+            });
+
+            // Close mobile menu when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!navLinks.contains(e.target) && !mobileMenuBtn.contains(e.target) && navLinks.style.display === 'flex') {
+                    navLinks.style.display = 'none';
+                    mobileMenuBtn.innerHTML = '☰';
+                }
+            });
+        }
+
+        // Enhanced header scroll effect
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            const scrolled = window.scrollY > 100;
+            
+            if (scrolled) {
+                header.style.background = 'rgba(10, 10, 10, 0.95)';
+                header.style.borderBottom = '1px solid rgba(0, 212, 255, 0.2)';
+            } else {
+                header.style.background = 'rgba(10, 10, 10, 0.8)';
+                header.style.borderBottom = '1px solid var(--border-subtle)';
+            }
+        });
+
+        // Add progress bar animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes progress {
+                0% { width: 0%; }
+                50% { width: 85%; }
+                100% { width: 95%; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Language selector with modern design
+        window.addEventListener('load', () => {
+            const nav = document.querySelector('nav');
+            const langSelector = document.createElement('select');
+            langSelector.innerHTML = `
+                <option value="en">🇺🇸 English</option>
+                <option value="hi">🇮🇳 हिंदी</option>
+                <option value="bn">🇧🇩 বাংলা</option>
+                <option value="ta">🇮🇳 தமிழ்</option>
+                <option value="mr">🇮🇳 मराठी</option>
+                <option value="gu">🇮🇳 ગુજરાતી</option>
+            `;
+            
+            langSelector.style.cssText = `
+                background: var(--glass-bg);
+                backdrop-filter: blur(20px);
+                border: 1px solid var(--border-subtle);  
+                color: var(--text-primary);
+                padding: clamp(0.4rem, 2vw, 0.6rem) clamp(0.8rem, 2vw, 1rem);
+                border-radius: 8px;
+                margin-left: clamp(0.5rem, 2vw, 1rem);
+                cursor: pointer;
+                font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+                transition: all 0.3s ease;
+            `;
+            
+            langSelector.addEventListener('change', (e) => {
+                const langNames = {
+                    en: 'English', hi: 'Hindi', bn: 'Bengali', 
+                    ta: 'Tamil', mr: 'Marathi', gu: 'Gujarati'
+                };
+                
+                // Modern notification for language change
+                const toast = document.createElement('div');
+                toast.style.cssText = `
+                    position: fixed;
+                    top: clamp(80px, 10vw, 100px);
+                    right: clamp(10px, 5vw, 20px);
+                    background: var(--card-bg);
+                    border: 1px solid var(--accent-cyan);
+                    border-radius: 12px;
+                    padding: clamp(0.8rem, 3vw, 1rem) clamp(1rem, 3vw, 1.5rem);
+                    color: var(--text-primary);
+                    z-index: 10000;
+                    backdrop-filter: blur(20px);
+                    transform: translateX(100%);
+                    transition: transform 0.3s ease;
+                    font-size: clamp(0.9rem, 2.5vw, 1rem);
+                `;
+                toast.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: clamp(0.3rem, 2vw, 0.5rem);">
+                        <span style="color: var(--accent-cyan);">🌐</span>
+                        Language: ${langNames[e.target.value]}
+                    </div>
+                `;
+                
+                document.body.appendChild(toast);
+                setTimeout(() => toast.style.transform = 'translateX(0)', 100);
+                setTimeout(() => {
+                    toast.style.transform = 'translateX(100%)';
+                    setTimeout(() => toast.remove(), 300);
+                }, 2000);
+            });
+            
+            const ctaBtn = document.querySelector('.cta-btn');
+            nav.insertBefore(langSelector, ctaBtn);
+        });
+
+        // Add some particle effect on hero (subtle)
+        function createParticles() {
+            const hero = document.querySelector('.hero');
+            const particleCount = window.innerWidth < 768 ? 20 : 50; // Fewer particles on mobile
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.style.cssText = `
+                    position: absolute;
+                    width: clamp(1px, 0.5vw, 2px);
+                    height: clamp(1px, 0.5vw, 2px);
+                    background: var(--accent-cyan);
+                    border-radius: 50%;
+                    opacity: 0.3;
+                    animation: float-particle ${5 + Math.random() * 10}s infinite ease-in-out;
+                    left: ${Math.random() * 100}%;
+                    top: ${Math.random() * 100}%;
+                    animation-delay: ${Math.random() * 5}s;
+                `;
+                hero.appendChild(particle);
+            }
+        }
+
+        // Add particle animation
+        const particleStyle = document.createElement('style');
+        particleStyle.textContent = `
+            @keyframes float-particle {
+                0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.3; }
+                50% { transform: translateY(-20px) rotate(180deg); opacity: 0.8; }
+            }
+        `;
+        document.head.appendChild(particleStyle);
+        
+        // Initialize particles after a short delay
+        setTimeout(createParticles, 1000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personalized Career Guide</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='result.css') }}">
+</head>
+<body>
+    <div class="container" id="content-to-download">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        {{ content | safe }}
+    </div>
+    <!-- <form action="/download_pdf" method="post" id="pdf-form">
+        <input type="hidden" name="html_content" id="html-content-input">
+        <button type="submit" class="submit-btn">Download as PDF</button>
+    </form> -->
+
+    <script>
+        document.getElementById('pdf-form').addEventListener('submit', function() {
+            var htmlContent = document.getElementById('content-to-download').innerHTML;
+            document.getElementById('html-content-input').value = htmlContent;
+        });
+    </script>
+</body>
+</html>

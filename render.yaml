@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: vision-u-app
+    env: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn app:app"
+    plan: free
+    environmentVariables:
+      - key: PYTHON_VERSION
+        value: 3.11.4
+      - key: SECRET_KEY
+        fromDatabase:
+          name: vision-u-secrets
+          property: SECRET_KEY
+      - key: API_KEY
+        fromDatabase:
+          name: vision-u-secrets
+          property: API_KEY
+      - key: DATABASE_URL
+        fromDatabase:
+          name: vision-u-db
+          property: connectionString
+
+databases:
+  - name: vision-u-db
+    plan: free
