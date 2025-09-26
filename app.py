@@ -6,7 +6,12 @@ import google.generativeai as genai
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
+import logging
 from dotenv import load_dotenv
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 load_dotenv()
 
@@ -40,18 +45,55 @@ class User(db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
-# Initialize database tables
+# Initialize database tables with better error handling
+def init_db():
+    try:
+        with app.app_context():
+            # Test database connection first
+            connection = db.engine.connect()
+            connection.close()
+            logger.info("Database connection successful!")
+            
+            # Create tables
+            db.create_all()
+            logger.info("Database tables created successfully!")
+            return True
+    except Exception as e:
+        print(f"Database initialization error: {e}")
+        return False
+
+# Initialize database with retry logic
+db_initialized = False
 try:
-    with app.app_context():
-        db.create_all()
-        print("Database tables created successfully!")
+    db_initialized = init_db()
 except Exception as e:
-    print(f"Database initialization error: {e}")
-    # Continue running the app even if database setup fails initially
+    print(f"Initial database setup failed: {e}")
+
+# Function to ensure database is initialized on first request
+def ensure_db_initialized():
+    global db_initialized
+    if not db_initialized:
+        db_initialized = init_db()
+    return db_initialized
 
 @app.route('/')
 def home():
     return redirect(url_for('index'))
+
+@app.route('/health')
+def health_check():
+    """Health check endpoint for debugging"""
+    try:
+        # Test database connection
+        db.engine.connect()
+        db_status = "Connected"
+        
+        # Test API key
+        api_status = "Available" if API_KEY else "Missing"
+        
+        return f"Database: {db_status}, API Key: {api_status}, DB Initialized: {db_initialized}"
+    except Exception as e:
+        return f"Health Check Failed: {str(e)}", 500
 
 @app.route('/index')
 def index():
@@ -60,30 +102,61 @@ def index():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        email = request.form['email']
-        password = request.form['password']
-        user = User.query.filter_by(email=email).first()
-        if user and user.check_password(password):
-            session['user'] = user.email
-            return redirect(url_for('chat'))
-        else:
-            flash('Login failed. Try again.', 'error')
-            return redirect(url_for('login'))
+        try:
+            email = request.form['email']
+            password = request.form['password']
+            
+            # Ensure database is initialized
+            if not ensure_db_initialized():
+                flash('Database connection error. Please try again later.', 'error')
+                return render_template('login.html')
+            
+            user = User.query.filter_by(email=email).first()
+            if user and user.check_password(password):
+                session['user'] = user.email
+                return redirect(url_for('chat'))
+            else:
+                flash('Invalid email or password. Please try again.', 'error')
+                return render_template('login.html')
+        except Exception as e:
+            logger.error(f"Login error: {e}")
+            flash('An error occurred during login. Please try again.', 'error')
+            return render_template('login.html')
     return render_template('login.html')
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        email = request.form['email']
-        password = request.form['password']
-        if User.query.filter_by(email=email).first():
-            return 'Email already registered.'
-        new_user = User(email=email)
-        new_user.set_password(password)
-        db.session.add(new_user)
-        db.session.commit()
-        session['user'] = new_user.email
-        return redirect(url_for('chat'))
+        try:
+            email = request.form['email']
+            password = request.form['password']
+            
+            # Ensure database is initialized
+            if not ensure_db_initialized():
+                flash('Database connection error. Please try again later.', 'error')
+                return render_template('register.html')
+            
+            # Check if user already exists
+            existing_user = User.query.filter_by(email=email).first()
+            if existing_user:
+                flash('Email already registered. Please use a different email.', 'error')
+                return render_template('register.html')
+            
+            # Create new user
+            new_user = User(email=email)
+            new_user.set_password(password)
+            db.session.add(new_user)
+            db.session.commit()
+            
+            session['user'] = new_user.email
+            flash('Registration successful! Welcome to Vision U!', 'success')
+            return redirect(url_for('chat'))
+            
+        except Exception as e:
+            logger.error(f"Registration error: {e}")
+            db.session.rollback()  # Rollback in case of error
+            flash('An error occurred during registration. Please try again.', 'error')
+            return render_template('register.html')
     return render_template('register.html')
 
 @app.route('/chat')
