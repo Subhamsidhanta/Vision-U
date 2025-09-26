@@ -20,21 +20,24 @@
 
 ### 3. Deploy on Render
 
-#### Option A: Using render.yaml (Recommended)
-1. **Connect GitHub Repository**:
+#### Option A: Update Existing Blueprint (Recommended for your case)
+1. **Update Existing Blueprint**:
    - Go to https://render.com/dashboard
-   - Click "New +" → "Blueprint"
-   - Connect your GitHub repository
-   - Select the repository containing Vision U
+   - Find your existing blueprint: `Vision-U_as4`
+   - Click "Sync" to pull latest changes from GitHub
+   - Or delete the old blueprint and create new one
 
-2. **Configure Environment Variables**:
-   - Go to your service settings
-   - Add these environment variables:
-     ```
-     SECRET_KEY=your-secret-key-here
-     API_KEY=your-gemini-api-key
-     DATABASE_URL=postgresql://username:password@host:port/dbname
-     ```
+2. **Use Your Existing Database**:
+   - You already have `Vision-u-db` database
+   - Get the connection string from your database dashboard
+   - Update environment variables with your existing database URL
+
+#### Option B: Create New Blueprint
+1. **Create New Blueprint**:
+   - Go to https://render.com/dashboard
+   - Click "New +" → "Blueprint" 
+   - Connect your GitHub repository: `Subhamsidhanta/Vision-U`
+   - This will create `vision-u-app-v2` (different name to avoid conflict)
 
 #### Option B: Manual Service Creation
 1. **Create Web Service**:
