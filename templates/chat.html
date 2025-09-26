@@ -109,6 +109,12 @@
             }
         });
 
+        chatInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                sendBtn.click();
+            }
+        });
+
         function appendMessage(sender, message) {
             const messageElement = document.createElement('div');
             messageElement.classList.add('chat-message', sender);
