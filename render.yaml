@@ -7,7 +7,7 @@ services:
     plan: free
     environmentVariables:
       - key: PYTHON_VERSION
-        value: 3.11.4
+        value: 3.11.9
       - key: SECRET_KEY
         value: your-secret-key-here
       - key: API_KEY

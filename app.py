@@ -8,11 +8,18 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import os
 from dotenv import load_dotenv
 
-app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', 'a-strong-secret-key-for-development-only') # In production, set a real secret key as an environment variable. # In production, set a real secret key as an environment variable.
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///users.db')
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 load_dotenv()
+
+app = Flask(__name__)
+app.secret_key = os.environ.get('SECRET_KEY', 'a-strong-secret-key-for-development-only')
+
+# Handle PostgreSQL URL format for Render
+database_url = os.environ.get('DATABASE_URL', 'sqlite:///users.db')
+if database_url.startswith('postgres://'):
+    database_url = database_url.replace('postgres://', 'postgresql://', 1)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 API_KEY = os.getenv("API_KEY") # It is recommended to use environment variables for API keys
@@ -29,8 +36,14 @@ class User(db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
-with app.app_context():
-    db.create_all()
+# Initialize database tables
+try:
+    with app.app_context():
+        db.create_all()
+        print("Database tables created successfully!")
+except Exception as e:
+    print(f"Database initialization error: {e}")
+    # Continue running the app even if database setup fails initially
 
 @app.route('/')
 def home():
