@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: vision-u-app-v2
+    name: vision-u
     env: python
     buildCommand: "./build.sh"
     startCommand: "gunicorn app:app"
@@ -8,7 +8,9 @@ services:
     environmentVariables:
       - key: PYTHON_VERSION
         value: 3.12.0
-      # DO NOT PUT SECRETS HERE - Set these in Render Dashboard manually
-      # - SECRET_KEY: Set in Render Dashboard  
-      # - API_KEY: Set in Render Dashboard
-      # - DATABASE_URL: Set in Render Dashboard
+      # Environment variables will be set in Render Dashboard
+      # This ensures no secrets are in the code
+
+databases:
+  - name: vision-u-db
+    plan: free

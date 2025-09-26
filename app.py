@@ -79,17 +79,26 @@ def init_db():
 
 # Initialize database with retry logic
 db_initialized = False
-try:
-    db_initialized = init_db()
-except Exception as e:
-    print(f"Initial database setup failed: {e}")
 
 # Function to ensure database is initialized on first request
 def ensure_db_initialized():
     global db_initialized
     if not db_initialized:
+        logger.info("Attempting database initialization...")
         db_initialized = init_db()
+        if db_initialized:
+            logger.info("Database initialized successfully!")
+        else:
+            logger.error("Database initialization failed")
     return db_initialized
+
+# Try initial setup but don't fail if it doesn't work
+try:
+    db_initialized = init_db()
+    logger.info("Initial database setup completed")
+except Exception as e:
+    logger.warning(f"Initial database setup failed, will retry on first request: {e}")
+    db_initialized = False
 
 @app.route('/')
 def home():
