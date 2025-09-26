@@ -16,7 +16,11 @@ app.secret_key = os.environ.get('SECRET_KEY', 'a-strong-secret-key-for-developme
 # Handle PostgreSQL URL format for Render
 database_url = os.environ.get('DATABASE_URL', 'sqlite:///users.db')
 if database_url.startswith('postgres://'):
-    database_url = database_url.replace('postgres://', 'postgresql://', 1)
+    # Use pg8000 driver instead of psycopg2 for better Python 3.13 compatibility
+    database_url = database_url.replace('postgres://', 'postgresql+pg8000://', 1)
+elif database_url.startswith('postgresql://') and 'pg8000' not in database_url:
+    # Ensure we use pg8000 driver
+    database_url = database_url.replace('postgresql://', 'postgresql+pg8000://', 1)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
