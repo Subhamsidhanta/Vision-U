@@ -8,8 +8,6 @@ services:
     environmentVariables:
       - key: PYTHON_VERSION
         value: 3.12.0
-      # Environment variables will be set in Render Dashboard
-      # This ensures no secrets are in the code
 
 databases:
   - name: vision-u-db
