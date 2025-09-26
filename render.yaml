@@ -9,8 +9,8 @@ services:
       - key: PYTHON_VERSION
         value: 3.12.0
       - key: SECRET_KEY
-        value: your-secret-key-here
+        value: fba1c96d894dc12790b61ca3006fbf15
       - key: API_KEY
-        value: your-gemini-api-key-here
+        value: AIzaSyBediwkZbCW12ummd_6f8FwYbdoqnbD6-c
       - key: DATABASE_URL
-        value: your-existing-database-url
+        value: postgresql://vision_u_db_user:I4XFUKHYj5lbhsShNlx2Wz5zflj7KLAv@dpg-d2hh98qdbo4c73b2ceug-a/vision_u_db
