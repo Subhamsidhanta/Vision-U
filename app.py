@@ -18,20 +18,20 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'a-strong-secret-key-for-development-only')
 
-# Handle PostgreSQL URL format for Render with multiple driver options
+# Handle PostgreSQL URL format for Render with psycopg3 (Python 3.13 compatible)
 database_url = os.environ.get('DATABASE_URL', 'sqlite:///users.db')
-original_url = database_url
 
 logger.info(f"Original DATABASE_URL: {database_url[:50]}...")
 
-# Try different PostgreSQL drivers for maximum compatibility
-if database_url.startswith('postgres://') or database_url.startswith('postgresql://'):
-    # First, normalize to postgresql://
-    if database_url.startswith('postgres://'):
-        database_url = database_url.replace('postgres://', 'postgresql://', 1)
-    
-    # For production, try pg8000 first, then fall back to psycopg2-binary
-    logger.info("Detected PostgreSQL database, configuring driver...")
+# Configure for psycopg3 (modern PostgreSQL adapter)
+if database_url.startswith('postgres://'):
+    # Use psycopg3 driver for Python 3.13 compatibility
+    database_url = database_url.replace('postgres://', 'postgresql+psycopg://', 1)
+    logger.info("Configured PostgreSQL with psycopg3 driver")
+elif database_url.startswith('postgresql://') and '+psycopg' not in database_url:
+    # Ensure we use psycopg3 driver
+    database_url = database_url.replace('postgresql://', 'postgresql+psycopg://', 1)
+    logger.info("Configured PostgreSQL with psycopg3 driver")
 else:
     logger.info("Using SQLite database for local development")
 
