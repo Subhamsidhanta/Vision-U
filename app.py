@@ -18,14 +18,22 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'a-strong-secret-key-for-development-only')
 
-# Handle PostgreSQL URL format for Render
+# Handle PostgreSQL URL format for Render with multiple driver options
 database_url = os.environ.get('DATABASE_URL', 'sqlite:///users.db')
-if database_url.startswith('postgres://'):
-    # Use pg8000 driver instead of psycopg2 for better Python 3.13 compatibility
-    database_url = database_url.replace('postgres://', 'postgresql+pg8000://', 1)
-elif database_url.startswith('postgresql://') and 'pg8000' not in database_url:
-    # Ensure we use pg8000 driver
-    database_url = database_url.replace('postgresql://', 'postgresql+pg8000://', 1)
+original_url = database_url
+
+logger.info(f"Original DATABASE_URL: {database_url[:50]}...")
+
+# Try different PostgreSQL drivers for maximum compatibility
+if database_url.startswith('postgres://') or database_url.startswith('postgresql://'):
+    # First, normalize to postgresql://
+    if database_url.startswith('postgres://'):
+        database_url = database_url.replace('postgres://', 'postgresql://', 1)
+    
+    # For production, try pg8000 first, then fall back to psycopg2-binary
+    logger.info("Detected PostgreSQL database, configuring driver...")
+else:
+    logger.info("Using SQLite database for local development")
 
 app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -50,16 +58,23 @@ def init_db():
     try:
         with app.app_context():
             # Test database connection first
+            logger.info(f"Testing connection to: {app.config['SQLALCHEMY_DATABASE_URI'][:50]}...")
             connection = db.engine.connect()
             connection.close()
-            logger.info("Database connection successful!")
+            logger.info("Database connection test successful!")
             
             # Create tables
             db.create_all()
             logger.info("Database tables created successfully!")
+            
+            # Test a simple query
+            with db.engine.connect() as conn:
+                result = conn.execute(db.text("SELECT 1")).fetchone()
+            logger.info("Database query test successful!")
             return True
     except Exception as e:
-        print(f"Database initialization error: {e}")
+        logger.error(f"Database initialization error: {str(e)}")
+        logger.error(f"Database URL being used: {app.config['SQLALCHEMY_DATABASE_URI'][:50]}...")
         return False
 
 # Initialize database with retry logic
@@ -83,17 +98,61 @@ def home():
 @app.route('/health')
 def health_check():
     """Health check endpoint for debugging"""
+    health_info = {}
+    
     try:
         # Test database connection
-        db.engine.connect()
-        db_status = "Connected"
-        
-        # Test API key
-        api_status = "Available" if API_KEY else "Missing"
-        
-        return f"Database: {db_status}, API Key: {api_status}, DB Initialized: {db_initialized}"
+        connection = db.engine.connect()
+        connection.close()
+        health_info['database'] = "Connected"
+        health_info['db_url'] = app.config['SQLALCHEMY_DATABASE_URI'][:50] + "..."
     except Exception as e:
-        return f"Health Check Failed: {str(e)}", 500
+        health_info['database'] = f"Failed: {str(e)}"
+        health_info['db_url'] = app.config['SQLALCHEMY_DATABASE_URI'][:50] + "..."
+    
+    # Test API key
+    health_info['api_key'] = "Available" if API_KEY else "Missing"
+    health_info['db_initialized'] = db_initialized
+    
+    # Environment info
+    health_info['env_vars'] = {
+        'SECRET_KEY': 'Set' if os.environ.get('SECRET_KEY') else 'Missing',
+        'DATABASE_URL': 'Set' if os.environ.get('DATABASE_URL') else 'Missing',
+        'API_KEY': 'Set' if os.environ.get('API_KEY') else 'Missing'
+    }
+    
+    return health_info
+
+@app.route('/test-db')
+def test_database():
+    """Test database operations"""
+    try:
+        # Ensure database is initialized
+        if not ensure_db_initialized():
+            return {"error": "Database initialization failed"}, 500
+        
+        # Test database operations
+        with app.app_context():
+            # Test connection
+            with db.engine.connect() as conn:
+                result = conn.execute(db.text("SELECT 1 as test")).fetchone()
+                
+            # Test table creation
+            db.create_all()
+            
+            # Test user table exists
+            inspector = db.inspect(db.engine)
+            tables = inspector.get_table_names()
+            
+            return {
+                "status": "success",
+                "test_query": result[0] if result else None,
+                "tables": tables,
+                "user_table_exists": "user" in tables
+            }
+    except Exception as e:
+        logger.error(f"Database test failed: {e}")
+        return {"error": str(e)}, 500
 
 @app.route('/index')
 def index():
