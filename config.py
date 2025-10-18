@@ -51,16 +51,27 @@ class ProductionConfig(Config):
         'max_overflow': 20
     }
     
-    # Set SQLALCHEMY_DATABASE_URI from environment
-    _database_url = os.environ.get('DATABASE_URL')
-    if _database_url and _database_url.startswith('postgres://'):
-        _database_url = _database_url.replace('postgres://', 'postgresql://', 1)
-    
-    SQLALCHEMY_DATABASE_URI = _database_url or os.environ.get('DATABASE_URL')
+    @classmethod
+    def get_database_uri(cls):
+        """Get database URI from environment with proper format conversion"""
+        database_url = os.environ.get('DATABASE_URL')
+        if not database_url:
+            raise RuntimeError('DATABASE_URL environment variable is required in production')
+        
+        # Handle PostgreSQL URL format conversion
+        if database_url.startswith('postgres://'):
+            database_url = database_url.replace('postgres://', 'postgresql://', 1)
+        
+        return database_url
     
     @classmethod
     def init_app(cls, app):
+        """Initialize the app with this configuration"""
         Config.init_app(app)
+        
+        # Set database URI at app initialization time
+        if not app.config.get('SQLALCHEMY_DATABASE_URI'):
+            app.config['SQLALCHEMY_DATABASE_URI'] = cls.get_database_uri()
         
         # Log to stderr in production
         import logging
