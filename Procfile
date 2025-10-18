@@ -1,1 +1,1 @@
-web: gunicorn wsgi:app --workers 3 --threads 2 --timeout 120
+web: FLASK_ENV=production gunicorn wsgi:app --bind 0.0.0.0:$PORT --workers 3 --threads 2 --timeout 120

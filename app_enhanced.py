@@ -64,9 +64,25 @@ def create_app(config_name: Optional[str] = None) -> Flask:
     if config_name is None:
         config_name = os.getenv('FLASK_ENV', 'development')
     
-    config_class = get_config()
+    # Get config class based on environment
+    from config import config
+    config_class = config.get(config_name, config['default'])
+    
+    # Handle DATABASE_URL for production before loading config
+    if config_name == 'production':
+        database_url = os.environ.get('DATABASE_URL')
+        if database_url and database_url.startswith('postgres://'):
+            # Fix postgres:// to postgresql:// for SQLAlchemy
+            os.environ['DATABASE_URL'] = database_url.replace('postgres://', 'postgresql://', 1)
+    
     app.config.from_object(config_class)
     config_class.init_app(app)
+    
+    # Ensure SQLALCHEMY_DATABASE_URI is set
+    if not app.config.get('SQLALCHEMY_DATABASE_URI'):
+        database_url = os.environ.get('DATABASE_URL')
+        if database_url:
+            app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 
     # Enforce SECRET_KEY from environment in production
     env_secret = os.environ.get('SECRET_KEY')

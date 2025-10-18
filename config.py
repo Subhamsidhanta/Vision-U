@@ -51,19 +51,12 @@ class ProductionConfig(Config):
         'max_overflow': 20
     }
     
-    def __init__(self):
-        super().__init__()
-        # PostgreSQL configuration for Render (REQUIRED in production)
-        database_url = os.environ.get('DATABASE_URL')
-        
-        if not database_url:
-            raise RuntimeError('DATABASE_URL environment variable is required in production')
-        
-        # Handle PostgreSQL URL format for Render with psycopg2
-        if database_url.startswith('postgres://'):
-            database_url = database_url.replace('postgres://', 'postgresql://', 1)
-        
-        self.SQLALCHEMY_DATABASE_URI = database_url
+    # Set SQLALCHEMY_DATABASE_URI from environment
+    _database_url = os.environ.get('DATABASE_URL')
+    if _database_url and _database_url.startswith('postgres://'):
+        _database_url = _database_url.replace('postgres://', 'postgresql://', 1)
+    
+    SQLALCHEMY_DATABASE_URI = _database_url or os.environ.get('DATABASE_URL')
     
     @classmethod
     def init_app(cls, app):
