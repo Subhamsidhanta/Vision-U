@@ -3,8 +3,9 @@ Database models for Vision U application
 """
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional
+import secrets
 
 db = SQLAlchemy()
 
@@ -19,6 +20,10 @@ class User(db.Model):
     last_login = db.Column(db.DateTime)
     is_active = db.Column(db.Boolean, default=True)
     
+    # Password reset functionality
+    reset_token = db.Column(db.String(100), unique=True)
+    reset_token_expires = db.Column(db.DateTime)
+    
     # Relationships
     assessments = db.relationship('Assessment', backref='user', lazy=True, cascade='all, delete-orphan')
     
@@ -30,10 +35,39 @@ class User(db.Model):
         """Check password against hash"""
         return check_password_hash(self.password_hash, password)
     
+    def generate_reset_token(self) -> str:
+        """Generate password reset token"""
+        self.reset_token = secrets.token_urlsafe(32)
+        self.reset_token_expires = datetime.utcnow() + timedelta(hours=1)  # Token expires in 1 hour
+        db.session.commit()
+        return self.reset_token
+    
+    def verify_reset_token(self, token: str) -> bool:
+        """Verify reset token is valid and not expired"""
+        if not self.reset_token or not self.reset_token_expires:
+            return False
+        
+        if datetime.utcnow() > self.reset_token_expires:
+            self.clear_reset_token()
+            return False
+        
+        return self.reset_token == token
+    
+    def clear_reset_token(self) -> None:
+        """Clear reset token after use or expiration"""
+        self.reset_token = None
+        self.reset_token_expires = None
+        db.session.commit()
+    
     def update_last_login(self) -> None:
         """Update last login timestamp"""
         self.last_login = datetime.utcnow()
         db.session.commit()
+    
+    @staticmethod
+    def find_by_reset_token(token: str) -> Optional['User']:
+        """Find user by reset token"""
+        return User.query.filter_by(reset_token=token).first()
     
     def to_dict(self) -> dict:
         """Convert user to dictionary"""

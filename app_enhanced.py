@@ -47,7 +47,7 @@ except Exception:
 # Local imports
 from config import get_config
 from models import db, User, Assessment, AIUsage
-from forms import LoginForm, RegisterForm, AssessmentForm
+from forms import LoginForm, RegisterForm, AssessmentForm, ForgotPasswordForm, ResetPasswordForm
 
 # Configure logging
 logging.basicConfig(
@@ -173,16 +173,34 @@ def create_app(config_name: Optional[str] = None) -> Flask:
     
     # Database initialization
     def init_db():
-        """Initialize database with proper error handling"""
+        """Initialize database with proper error handling and migration support"""
         try:
             with app.app_context():
                 # Test database connection
                 db.engine.connect().close()
                 logger.info("Database connection test successful")
                 
-                # Create tables
+                # Create tables (this will handle new columns automatically)
                 db.create_all()
                 logger.info("Database tables created successfully")
+                
+                # Handle potential schema updates for existing users
+                try:
+                    # Check if reset_token columns exist, if not create them
+                    with db.engine.begin() as conn:
+                        # Try to access reset_token column
+                        result = conn.execute(db.text("SELECT reset_token FROM users LIMIT 1"))
+                        logger.info("Reset token columns already exist")
+                except Exception as column_error:
+                    # Columns don't exist, add them
+                    try:
+                        with db.engine.begin() as conn:
+                            conn.execute(db.text("ALTER TABLE users ADD COLUMN reset_token VARCHAR(100)"))
+                            conn.execute(db.text("ALTER TABLE users ADD COLUMN reset_token_expires DATETIME"))
+                        logger.info("Added reset token columns to existing users table")
+                    except Exception as alter_error:
+                        logger.warning(f"Could not add reset token columns: {alter_error}")
+                
                 return True
         except Exception as e:
             logger.error(f"Database initialization error: {str(e)}")
@@ -283,6 +301,69 @@ def create_app(config_name: Optional[str] = None) -> Flask:
                 flash('An error occurred during registration. Please try again.', 'error')
         
         return render_template('register.html', form=form)
+    
+    @app.route('/forgot-password', methods=['GET', 'POST'])
+    @limiter.limit("3 per minute")
+    def forgot_password():
+        """Forgot password - generate reset token"""
+        form = ForgotPasswordForm()
+        
+        if form.validate_on_submit():
+            try:
+                user = User.query.filter_by(email=form.email.data).first()
+                if user:
+                    token = user.generate_reset_token()
+                    
+                    # In a real application, you would send an email here
+                    # For now, we'll just provide a reset link
+                    reset_url = url_for('reset_password', token=token, _external=True)
+                    
+                    flash(f'Password reset instructions have been sent to your email. '
+                          f'Reset link: {reset_url}', 'info')
+                else:
+                    # Don't reveal that email doesn't exist for security
+                    flash('If your email is registered, you will receive reset instructions.', 'info')
+                
+                return redirect(url_for('login'))
+                
+            except Exception as e:
+                logger.error(f"Forgot password error: {e}")
+                flash('An error occurred. Please try again.', 'error')
+        
+        return render_template('forgot_password.html', form=form)
+    
+    @app.route('/reset-password/<token>', methods=['GET', 'POST'])
+    @limiter.limit("3 per minute")
+    def reset_password(token):
+        """Reset password with token"""
+        user = User.find_by_reset_token(token)
+        
+        if not user or not user.verify_reset_token(token):
+            flash('Invalid or expired reset token.', 'error')
+            return redirect(url_for('forgot_password'))
+        
+        form = ResetPasswordForm()
+        
+        if form.validate_on_submit():
+            try:
+                user.set_password(form.password.data)
+                user.clear_reset_token()
+                
+                flash('Your password has been updated! You can now log in.', 'success')
+                return redirect(url_for('login'))
+                
+            except Exception as e:
+                logger.error(f"Reset password error: {e}")
+                flash('An error occurred. Please try again.', 'error')
+        
+        return render_template('reset_password.html', form=form)
+    
+    @app.route('/logout')
+    def logout():
+        """Logout user and clear session"""
+        session.clear()
+        flash('You have been logged out.', 'info')
+        return redirect(url_for('index'))
     
     @app.route('/chat')
     def chat():

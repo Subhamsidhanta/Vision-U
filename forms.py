@@ -55,6 +55,32 @@ class RegisterForm(FlaskForm):
         if User.query.filter_by(email=field.data).first():
             raise ValidationError('Email already registered. Please use a different email.')
 
+class ForgotPasswordForm(FlaskForm):
+    """Forgot password form"""
+    email = StringField('Email', validators=[
+        DataRequired(message='Email is required'),
+        Email(message='Please enter a valid email address'),
+        Length(max=120, message='Email must be less than 120 characters')
+    ])
+    submit = SubmitField('Reset Password')
+    
+    def validate_email(self, field):
+        """Check if email exists"""
+        if not User.query.filter_by(email=field.data).first():
+            raise ValidationError('Email not found. Please check your email address.')
+
+class ResetPasswordForm(FlaskForm):
+    """Reset password form"""
+    password = PasswordField('New Password', validators=[
+        DataRequired(message='Password is required'),
+        Length(min=8, max=128, message='Password must be 8-128 characters'),
+    ])
+    confirm_password = PasswordField('Confirm New Password', validators=[
+        DataRequired(message='Please confirm your password'),
+        EqualTo('password', message='Passwords must match')
+    ])
+    submit = SubmitField('Update Password')
+
 class AssessmentForm(FlaskForm):
     """Assessment form with comprehensive validation"""
     name = StringField('Name', validators=[
