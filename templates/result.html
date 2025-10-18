@@ -3,11 +3,220 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Personalized Career Guide</title>
+    <title>Your Career Guide - Vision U</title>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='result.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+    <style>
+        .result-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+            min-height: 100vh;
+            background: var(--primary-bg, #0a0a0a);
+        }
+        .result-header {
+            background: var(--card-bg, #1a1a1a);
+            border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.1));
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .result-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 1.5rem;
+        }
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #00d4ff 0%, #8b5cf6 100%);
+            color: white;
+        }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary, #ffffff);
+            border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.1));
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        .content-wrapper {
+            background: var(--card-bg, #1a1a1a);
+            border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.1));
+            border-radius: 20px;
+            padding: 2.5rem;
+            line-height: 1.6;
+            color: var(--text-primary, #ffffff);
+        }
+        
+        /* Markdown styling */
+        .content-wrapper h1 {
+            color: #00d4ff;
+            font-size: 2.2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            border-bottom: 2px solid rgba(0, 212, 255, 0.3);
+            padding-bottom: 1rem;
+        }
+        
+        .content-wrapper h2 {
+            color: #8b5cf6;
+            font-size: 1.6rem;
+            margin-top: 3rem;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: rgba(139, 92, 246, 0.1);
+            border-left: 4px solid #8b5cf6;
+            border-radius: 8px;
+        }
+        
+        .content-wrapper h3 {
+            color: #10b981;
+            font-size: 1.3rem;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .content-wrapper p {
+            margin-bottom: 1rem;
+            color: var(--text-secondary, #a3a3a3);
+        }
+        
+        .content-wrapper ul, .content-wrapper ol {
+            margin: 1rem 0;
+            padding-left: 2rem;
+        }
+        
+        .content-wrapper li {
+            margin-bottom: 0.8rem;
+            color: var(--text-secondary, #a3a3a3);
+        }
+        
+        .content-wrapper strong {
+            color: #00d4ff;
+            font-weight: 600;
+        }
+        
+        .content-wrapper code {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: 'Fira Code', monospace;
+            color: #ff6b6b;
+        }
+        
+        .content-wrapper pre {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 1rem;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+        }
+        
+        .content-wrapper blockquote {
+            border-left: 4px solid #00d4ff;
+            padding-left: 1.5rem;
+            margin: 1.5rem 0;
+            font-style: italic;
+            color: var(--text-secondary, #a3a3a3);
+        }
+        
+        /* List styling improvements */
+        .content-wrapper ul li::marker {
+            color: #00d4ff;
+        }
+        
+        .content-wrapper ol li::marker {
+            color: #8b5cf6;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .content-wrapper {
+                padding: 1.5rem;
+            }
+            
+            .content-wrapper h1 {
+                font-size: 1.8rem;
+            }
+            
+            .content-wrapper h2 {
+                font-size: 1.4rem;
+                margin-top: 2rem;
+            }
+        }
+        .flash-messages {
+            margin-bottom: 2rem;
+        }
+        .flash {
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+        .flash.error {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+        }
+        .flash.success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+        /* Loading state */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+        .loading-content {
+            background: var(--card-bg, #1a1a1a);
+            border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.1));
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            max-width: 300px;
+        }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(0, 212, 255, 0.3);
+            border-top: 3px solid #00d4ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
-    <div class="container" id="content-to-download">
+    <div class="result-container">
+        <!-- Flash Messages -->
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 <div class="flash-messages">
@@ -17,17 +226,197 @@
                 </div>
             {% endif %}
         {% endwith %}
-        {{ content | safe }}
+
+        <!-- Result Header -->
+        <div class="result-header">
+            <h1 style="color: var(--text-primary, #ffffff); margin-bottom: 1rem; font-size: clamp(1.5rem, 4vw, 2rem);">
+                🎯 Your Personalized Career Guide
+            </h1>
+            <p style="color: var(--text-secondary, #a3a3a3); margin-bottom: 0;">
+                Generated on {{ moment().format('MMMM Do, YYYY') if moment else 'today' }} • 
+                Powered by AI • Tailored for your success
+            </p>
+            
+            <div class="result-actions">
+                <form action="{{ url_for('download_pdf') }}" method="post" id="pdf-form" style="display: inline;">
+                    <input type="hidden" name="html_content" id="html-content-input">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <button type="submit" class="btn btn-primary" onclick="showLoading()">
+                        📄 Download PDF
+                    </button>
+                </form>
+                
+                <a href="{{ url_for('chat') }}" class="btn btn-secondary">
+                    🔄 New Assessment
+                </a>
+                
+                <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
+                    📊 Dashboard
+                </a>
+                
+                <button onclick="shareResults()" class="btn btn-secondary">
+                    🔗 Share
+                </button>
+            </div>
+        </div>
+
+        <!-- Career Guide Content -->
+        <div class="content-wrapper" id="content-to-download">
+            {{ content | safe }}
+        </div>
+
+        <!-- Additional Actions -->
+        <div style="text-align: center; margin-top: 2rem;">
+            <p style="color: var(--text-secondary, #a3a3a3); margin-bottom: 1rem;">
+                Questions about your results? Need more guidance?
+            </p>
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                <a href="{{ url_for('chat') }}" class="btn btn-primary">
+                    💬 Chat with AI Again
+                </a>
+                <a href="{{ url_for('index') }}#contact" class="btn btn-secondary">
+                    📞 Contact Support
+                </a>
+            </div>
+        </div>
     </div>
-    <!-- <form action="/download_pdf" method="post" id="pdf-form">
-        <input type="hidden" name="html_content" id="html-content-input">
-        <button type="submit" class="submit-btn">Download as PDF</button>
-    </form> -->
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <h3 style="color: var(--text-primary, #ffffff); margin-bottom: 0.5rem;">Generating PDF...</h3>
+            <p style="color: var(--text-secondary, #a3a3a3); margin: 0;">This may take a few moments</p>
+        </div>
+    </div>
 
     <script>
-        document.getElementById('pdf-form').addEventListener('submit', function() {
-            var htmlContent = document.getElementById('content-to-download').innerHTML;
-            document.getElementById('html-content-input').value = htmlContent;
+        // Prepare PDF form data
+        document.getElementById('pdf-form').addEventListener('submit', function(e) {
+            var contentElement = document.getElementById('content-to-download');
+            var htmlContent = contentElement.innerHTML;
+            
+            // Clean up the HTML content for PDF
+            var cleanContent = htmlContent
+                .replace(/style="[^"]*"/g, '') // Remove inline styles
+                .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '') // Remove scripts
+                .trim();
+            
+            document.getElementById('html-content-input').value = cleanContent;
+        });
+
+        function showLoading() {
+            document.getElementById('loading-overlay').style.display = 'flex';
+            
+            // Hide loading after 10 seconds (fallback)
+            setTimeout(function() {
+                document.getElementById('loading-overlay').style.display = 'none';
+            }, 10000);
+        }
+
+        function shareResults() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'My Career Guide - Vision U',
+                    text: 'Check out my personalized career guidance from Vision U AI!',
+                    url: window.location.href
+                }).then(() => {
+                    console.log('Thanks for sharing!');
+                }).catch(console.error);
+            } else {
+                // Fallback for browsers that don't support Web Share API
+                const url = window.location.href;
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(url).then(() => {
+                        alert('Link copied to clipboard!');
+                    }).catch(() => {
+                        promptForCopy(url);
+                    });
+                } else {
+                    promptForCopy(url);
+                }
+            }
+        }
+
+        function promptForCopy(url) {
+            const textArea = document.createElement('textarea');
+            textArea.value = url;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                alert('Link copied to clipboard!');
+            } catch (err) {
+                alert('Could not copy link. Please copy manually:\n' + url);
+            }
+            document.body.removeChild(textArea);
+        }
+
+        // Print functionality
+        function printResults() {
+            window.print();
+        }
+
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Ctrl+P for print
+            if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+                e.preventDefault();
+                printResults();
+            }
+            
+            // Ctrl+S for download PDF
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                document.getElementById('pdf-form').dispatchEvent(new Event('submit'));
+            }
+        });
+
+        // Hide loading overlay when page loads
+        window.addEventListener('load', function() {
+            document.getElementById('loading-overlay').style.display = 'none';
+        });
+
+        // Add smooth scroll to top button
+        window.addEventListener('scroll', function() {
+            if (window.scrollY > 300) {
+                if (!document.getElementById('scroll-top-btn')) {
+                    const scrollBtn = document.createElement('button');
+                    scrollBtn.id = 'scroll-top-btn';
+                    scrollBtn.innerHTML = '↑';
+                    scrollBtn.style.cssText = `
+                        position: fixed;
+                        bottom: 2rem;
+                        right: 2rem;
+                        width: 50px;
+                        height: 50px;
+                        border-radius: 50%;
+                        background: linear-gradient(135deg, #00d4ff 0%, #8b5cf6 100%);
+                        color: white;
+                        border: none;
+                        font-size: 1.2rem;
+                        cursor: pointer;
+                        z-index: 1000;
+                        transition: all 0.3s ease;
+                        box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3);
+                    `;
+                    scrollBtn.addEventListener('click', function() {
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    });
+                    scrollBtn.addEventListener('mouseenter', function() {
+                        this.style.transform = 'scale(1.1)';
+                    });
+                    scrollBtn.addEventListener('mouseleave', function() {
+                        this.style.transform = 'scale(1)';
+                    });
+                    document.body.appendChild(scrollBtn);
+                }
+            } else {
+                const scrollBtn = document.getElementById('scroll-top-btn');
+                if (scrollBtn) {
+                    scrollBtn.remove();
+                }
+            }
         });
     </script>
 </body>

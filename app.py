@@ -1,263 +1,274 @@
+"""
+Vision U - AI-Powered Career Counseling Platform
+Enhanced version with security, performance, and reliability improvements
+"""
+
+import os
+import logging
+import html
+import time
+from datetime import datetime
+from typing import Optional, Dict, Any
 
 import markdown
 import pdfkit
-from flask import Flask, render_template, request, redirect, session, url_for, flash, get_flashed_messages, make_response
 import google.generativeai as genai
-from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import generate_password_hash, check_password_hash
-import os
-import logging
-from dotenv import load_dotenv
+from flask import Flask, render_template, request, redirect, session, url_for, flash, make_response, jsonify
+from flask_wtf.csrf import CSRFProtect
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from werkzeug.exceptions import RequestEntityTooLarge, BadRequest
+from werkzeug.middleware.proxy_fix import ProxyFix
 
-# Set up logging
-logging.basicConfig(level=logging.INFO)
+# Local imports
+from config import get_config
+from models import db, User, Assessment, AIUsage
+from forms import LoginForm, RegisterForm, AssessmentForm
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s %(levelname)s %(name)s: %(message)s'
+)
 logger = logging.getLogger(__name__)
 
-load_dotenv()
-
-app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', 'a-strong-secret-key-for-development-only')
-
-# Handle PostgreSQL URL format for Render with psycopg3 (Python 3.13 compatible)
-database_url = os.environ.get('DATABASE_URL', 'sqlite:///users.db')
-
-logger.info(f"Original DATABASE_URL: {database_url[:50]}...")
-
-# Configure for psycopg3 (modern PostgreSQL adapter)
-if database_url.startswith('postgres://'):
-    # Use psycopg3 driver for Python 3.13 compatibility
-    database_url = database_url.replace('postgres://', 'postgresql+psycopg://', 1)
-    logger.info("Configured PostgreSQL with psycopg3 driver")
-elif database_url.startswith('postgresql://') and '+psycopg' not in database_url:
-    # Ensure we use psycopg3 driver
-    database_url = database_url.replace('postgresql://', 'postgresql+psycopg://', 1)
-    logger.info("Configured PostgreSQL with psycopg3 driver")
-else:
-    logger.info("Using SQLite database for local development")
-
-app.config['SQLALCHEMY_DATABASE_URI'] = database_url
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
-
-API_KEY = os.getenv("API_KEY") # It is recommended to use environment variables for API keys
-genai.configure(api_key=API_KEY)
-
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.String(128))
-
-    def set_password(self, password):
-        self.password_hash = generate_password_hash(password)
-
-    def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
-
-# Initialize database tables with better error handling
-def init_db():
-    try:
-        with app.app_context():
-            # Test database connection first
-            logger.info(f"Testing connection to: {app.config['SQLALCHEMY_DATABASE_URI'][:50]}...")
-            connection = db.engine.connect()
-            connection.close()
-            logger.info("Database connection test successful!")
-            
-            # Create tables
-            db.create_all()
-            logger.info("Database tables created successfully!")
-            
-            # Test a simple query
-            with db.engine.connect() as conn:
-                result = conn.execute(db.text("SELECT 1")).fetchone()
-            logger.info("Database query test successful!")
-            return True
-    except Exception as e:
-        logger.error(f"Database initialization error: {str(e)}")
-        logger.error(f"Database URL being used: {app.config['SQLALCHEMY_DATABASE_URI'][:50]}...")
-        return False
-
-# Initialize database with retry logic
-db_initialized = False
-
-# Function to ensure database is initialized on first request
-def ensure_db_initialized():
-    global db_initialized
-    if not db_initialized:
-        logger.info("Attempting database initialization...")
-        db_initialized = init_db()
-        if db_initialized:
-            logger.info("Database initialized successfully!")
-        else:
-            logger.error("Database initialization failed")
-    return db_initialized
-
-# Try initial setup but don't fail if it doesn't work
-try:
-    db_initialized = init_db()
-    logger.info("Initial database setup completed")
-except Exception as e:
-    logger.warning(f"Initial database setup failed, will retry on first request: {e}")
-    db_initialized = False
-
-@app.route('/')
-def home():
-    return redirect(url_for('index'))
-
-@app.route('/health')
-def health_check():
-    """Health check endpoint for debugging"""
-    health_info = {}
+def create_app(config_name: Optional[str] = None) -> Flask:
+    """Application factory pattern"""
+    app = Flask(__name__)
     
-    try:
-        # Test database connection
-        connection = db.engine.connect()
-        connection.close()
-        health_info['database'] = "Connected"
-        health_info['db_url'] = app.config['SQLALCHEMY_DATABASE_URI'][:50] + "..."
-    except Exception as e:
-        health_info['database'] = f"Failed: {str(e)}"
-        health_info['db_url'] = app.config['SQLALCHEMY_DATABASE_URI'][:50] + "..."
+    # Load configuration
+    if config_name is None:
+        config_name = os.getenv('FLASK_ENV', 'development')
     
-    # Test API key
-    health_info['api_key'] = "Available" if API_KEY else "Missing"
-    health_info['db_initialized'] = db_initialized
+    config_class = get_config()
+    app.config.from_object(config_class)
+    config_class.init_app(app)
     
-    # Environment info
-    health_info['env_vars'] = {
-        'SECRET_KEY': 'Set' if os.environ.get('SECRET_KEY') else 'Missing',
-        'DATABASE_URL': 'Set' if os.environ.get('DATABASE_URL') else 'Missing',
-        'API_KEY': 'Set' if os.environ.get('API_KEY') else 'Missing'
-    }
+    # Trust proxy headers (for Render deployment)
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
     
-    return health_info
-
-@app.route('/test-db')
-def test_database():
-    """Test database operations"""
-    try:
-        # Ensure database is initialized
-        if not ensure_db_initialized():
-            return {"error": "Database initialization failed"}, 500
-        
-        # Test database operations
-        with app.app_context():
-            # Test connection
-            with db.engine.connect() as conn:
-                result = conn.execute(db.text("SELECT 1 as test")).fetchone()
+    # Initialize extensions
+    db.init_app(app)
+    csrf = CSRFProtect(app)
+    
+    # Initialize rate limiter
+    limiter = Limiter(
+        app=app,
+        key_func=get_remote_address,
+        storage_uri=app.config.get('RATELIMIT_STORAGE_URL'),
+        default_limits=[app.config.get('RATELIMIT_DEFAULT')]
+    )
+    
+    # Configure AI
+    api_key = app.config.get('API_KEY')
+    if not api_key:
+        logger.warning("API_KEY not found in environment variables")
+    else:
+        genai.configure(api_key=api_key)
+    
+    # Security headers
+    @app.after_request
+    def set_security_headers(response):
+        """Add security headers to all responses"""
+        response.headers['X-Content-Type-Options'] = 'nosniff'
+        response.headers['X-Frame-Options'] = 'DENY'
+        response.headers['X-XSS-Protection'] = '1; mode=block'
+        response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+        response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+        response.headers['Content-Security-Policy'] = (
+            "default-src 'self'; "
+            "script-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+            "font-src 'self' https://fonts.gstatic.com; "
+            "img-src 'self' data: https:; "
+            "connect-src 'self';"
+        )
+        return response
+    
+    # Error handlers
+    @app.errorhandler(404)
+    def not_found(error):
+        return render_template('errors/404.html'), 404
+    
+    @app.errorhandler(500)
+    def internal_error(error):
+        db.session.rollback()
+        logger.error(f"Internal server error: {error}")
+        return render_template('errors/500.html'), 500
+    
+    @app.errorhandler(413)
+    @app.errorhandler(RequestEntityTooLarge)
+    def file_too_large(error):
+        return jsonify({'error': 'File too large'}), 413
+    
+    @app.errorhandler(429)
+    def ratelimit_handler(e):
+        return jsonify({'error': 'Rate limit exceeded. Please try again later.'}), 429
+    
+    # Database initialization
+    def init_db():
+        """Initialize database with proper error handling"""
+        try:
+            with app.app_context():
+                # Test database connection
+                db.engine.connect().close()
+                logger.info("Database connection test successful")
                 
-            # Test table creation
-            db.create_all()
-            
-            # Test user table exists
-            inspector = db.inspect(db.engine)
-            tables = inspector.get_table_names()
-            
-            return {
-                "status": "success",
-                "test_query": result[0] if result else None,
-                "tables": tables,
-                "user_table_exists": "user" in tables
-            }
-    except Exception as e:
-        logger.error(f"Database test failed: {e}")
-        return {"error": str(e)}, 500
-
-@app.route('/index')
-def index():
-    return render_template('index.html')
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
+                # Create tables
+                db.create_all()
+                logger.info("Database tables created successfully")
+                return True
+        except Exception as e:
+            logger.error(f"Database initialization error: {str(e)}")
+            return False
+    
+    # Routes
+    @app.route('/')
+    def home():
+        """Home page redirect"""
+        return redirect(url_for('index'))
+    
+    @app.route('/health')
+    def health_check():
+        """Health check endpoint"""
+        health_info = {
+            'status': 'healthy',
+            'timestamp': datetime.utcnow().isoformat(),
+            'database': 'unknown',
+            'ai_api': 'configured' if app.config.get('API_KEY') else 'missing'
+        }
+        
         try:
-            email = request.form['email']
-            password = request.form['password']
-            
-            # Ensure database is initialized
-            if not ensure_db_initialized():
-                flash('Database connection error. Please try again later.', 'error')
-                return render_template('login.html')
-            
-            user = User.query.filter_by(email=email).first()
-            if user and user.check_password(password):
+            db.engine.connect().close()
+            health_info['database'] = 'connected'
+        except Exception as e:
+            health_info['database'] = f'error: {str(e)}'
+            health_info['status'] = 'unhealthy'
+        
+        status_code = 200 if health_info['status'] == 'healthy' else 503
+        return jsonify(health_info), status_code
+    
+    @app.route('/index')
+    def index():
+        """Landing page"""
+        return render_template('index.html')
+    
+    @app.route('/login', methods=['GET', 'POST'])
+    @limiter.limit("10 per minute")
+    def login():
+        """Enhanced login with rate limiting and validation"""
+        form = LoginForm()
+        
+        if form.validate_on_submit():
+            try:
+                if form.validate_login():
+                    user = form.user
+                    session['user_id'] = user.id
+                    session['user'] = user.email
+                    user.update_last_login()
+                    
+                    flash('Login successful!', 'success')
+                    next_page = request.args.get('next')
+                    return redirect(next_page) if next_page else redirect(url_for('chat'))
+                else:
+                    flash('Invalid email or password.', 'error')
+            except Exception as e:
+                logger.error(f"Login error for {form.email.data}: {e}")
+                flash('An error occurred during login. Please try again.', 'error')
+        
+        return render_template('login.html', form=form)
+    
+    @app.route('/register', methods=['GET', 'POST'])
+    @limiter.limit("5 per minute")
+    def register():
+        """Enhanced registration with validation"""
+        form = RegisterForm()
+        
+        if form.validate_on_submit():
+            try:
+                user = User(email=form.email.data)
+                user.set_password(form.password.data)
+                
+                db.session.add(user)
+                db.session.commit()
+                
+                session['user_id'] = user.id
                 session['user'] = user.email
+                user.update_last_login()
+                
+                flash('Registration successful! Welcome to Vision U!', 'success')
                 return redirect(url_for('chat'))
-            else:
-                flash('Invalid email or password. Please try again.', 'error')
-                return render_template('login.html')
-        except Exception as e:
-            logger.error(f"Login error: {e}")
-            flash('An error occurred during login. Please try again.', 'error')
-            return render_template('login.html')
-    return render_template('login.html')
-
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    if request.method == 'POST':
-        try:
-            email = request.form['email']
-            password = request.form['password']
-            
-            # Ensure database is initialized
-            if not ensure_db_initialized():
-                flash('Database connection error. Please try again later.', 'error')
-                return render_template('register.html')
-            
-            # Check if user already exists
-            existing_user = User.query.filter_by(email=email).first()
-            if existing_user:
-                flash('Email already registered. Please use a different email.', 'error')
-                return render_template('register.html')
-            
-            # Create new user
-            new_user = User(email=email)
-            new_user.set_password(password)
-            db.session.add(new_user)
-            db.session.commit()
-            
-            session['user'] = new_user.email
-            flash('Registration successful! Welcome to Vision U!', 'success')
-            return redirect(url_for('chat'))
-            
-        except Exception as e:
-            logger.error(f"Registration error: {e}")
-            db.session.rollback()  # Rollback in case of error
-            flash('An error occurred during registration. Please try again.', 'error')
-            return render_template('register.html')
-    return render_template('register.html')
-
-@app.route('/chat')
-def chat():
-    if 'user' in session:
+                
+            except Exception as e:
+                db.session.rollback()
+                logger.error(f"Registration error: {e}")
+                flash('An error occurred during registration. Please try again.', 'error')
+        
+        return render_template('register.html', form=form)
+    
+    @app.route('/chat')
+    def chat():
+        """Chat interface - requires authentication"""
+        if 'user' not in session:
+            return redirect(url_for('login'))
         return render_template('chat.html')
-    return redirect(url_for('login'))
-
-@app.route('/ask', methods=['POST'])
-def ask():
-    data = request.get_json()
-    user_info = data['user_info']
-    prompt = data['prompt']
-
-    model = genai.GenerativeModel('gemini-2.5-flash')
-
-    # Send a stricter, shorter prompt to Gemini
-    response = model.generate_content(f"""
+    
+    @app.route('/ask', methods=['POST'])
+    @limiter.limit("20 per hour")
+    def ask():
+        """Enhanced AI processing with rate limiting and validation"""
+        if 'user' not in session:
+            return redirect(url_for('login'))
+        
+        start_time = time.time()
+        user_id = session.get('user_id')
+        ip_address = get_remote_address()
+        
+        try:
+            data = request.get_json()
+            if not data:
+                raise BadRequest("No JSON data provided")
+            
+            user_info = data.get('user_info', {})
+            prompt = data.get('prompt', '')
+            
+            # Validate and sanitize input
+            form = AssessmentForm(data=user_info)
+            form.prompt.data = prompt
+            
+            if not form.validate():
+                logger.warning(f"Invalid form data from user {user_id}: {form.errors}")
+                flash('Please check your input and try again.', 'error')
+                return redirect(url_for('chat'))
+            
+            # Clean the data
+            form.clean_data()
+            
+            # Check if API key is available
+            if not app.config.get('API_KEY'):
+                flash('AI service is currently unavailable. Please try again later.', 'error')
+                return redirect(url_for('chat'))
+            
+            # Generate AI response
+            model = genai.GenerativeModel('gemini-2.5-flash')
+            
+            ai_prompt = f"""
 You are an expert student career counselor.
 Your task: Give a **personalized career guide** for the student **in short, clean, and point-wise format**.
 Keep each section **short, bullet-based, and easy for students to read**.
 Always respond in **Markdown format** only.
 
 **User Info**:
-- Name: {user_info.get('name', 'N/A')}
-- Education: {user_info.get('education', 'N/A')}
-- Interests: {user_info.get('interest', 'N/A')}
-- Hobbies: {user_info.get('hobby', 'N/A')}
+- Name: {form.name.data}
+- Age: {form.age.data}
+- Education: {form.education.data}
+- Interests: {form.interest.data}
+- Hobbies: {form.hobby.data}
 
-**Goal:** "{prompt}"
+**Goal:** "{form.prompt.data}"
 
 **Output Format**:
-# Personalized Career Guide for {user_info.get('name', 'Student')}
+# Personalized Career Guide for {form.name.data}
 
 ## 1. Career Path Name
 - **Why Fit:** 1 short line
@@ -279,60 +290,180 @@ Always respond in **Markdown format** only.
 - Use bullet points ✅
 - Avoid long paragraphs ❌
 - Make it simple, clean & beginner-friendly ✅
-""")
-
-    # Post-process response to remove unwanted spaces & keep it clean
-    formatted_text = response.text.strip()
-    html_content = markdown.markdown(formatted_text)
-    return redirect(url_for('result', content=html_content))
-
-
-@app.route('/dashboard')
-def dashboard():
-    if 'user' in session:
-        return render_template('dashboard.html', user=session['user'])
-    return redirect(url_for('login'))
-
-@app.route('/logout')
-def logout():
-    session.pop('user', None)
-    return redirect(url_for('login'))
-
-@app.route('/result')
-def result():
-    content = request.args.get('content')
-    return render_template('result.html', content=content)
-
-@app.route('/download_pdf', methods=['POST'])
-def download_pdf():
-    try:
-        config = pdfkit.configuration()
-        html_content = request.form['html_content']
+"""
+            
+            response = model.generate_content(ai_prompt)
+            response_time = time.time() - start_time
+            
+            # Save assessment to database
+            assessment = Assessment(
+                user_id=user_id,
+                name=form.name.data,
+                age=form.age.data,
+                education=form.education.data,
+                interest=form.interest.data,
+                hobby=form.hobby.data,
+                career_goal=form.prompt.data,
+                ai_response=response.text,
+                response_format='markdown'
+            )
+            
+            db.session.add(assessment)
+            
+            # Log AI usage
+            ai_usage = AIUsage(
+                user_id=user_id,
+                ip_address=ip_address,
+                endpoint='/ask',
+                response_time=response_time,
+                success=True
+            )
+            db.session.add(ai_usage)
+            db.session.commit()
+            
+            # Convert to HTML and redirect to results
+            html_content = markdown.markdown(response.text.strip())
+            return redirect(url_for('result', content=html_content))
+            
+        except Exception as e:
+            response_time = time.time() - start_time
+            logger.error(f"AI processing error for user {user_id}: {e}")
+            
+            # Log failed usage
+            ai_usage = AIUsage(
+                user_id=user_id,
+                ip_address=ip_address,
+                endpoint='/ask',
+                response_time=response_time,
+                success=False,
+                error_message=str(e)
+            )
+            db.session.add(ai_usage)
+            db.session.commit()
+            
+            flash('An error occurred while processing your request. Please try again.', 'error')
+            return redirect(url_for('chat'))
+    
+    @app.route('/result')
+    def result():
+        """Display assessment results"""
+        if 'user' not in session:
+            return redirect(url_for('login'))
         
-        # Add the CSS styles to the HTML content
-        full_html = f"""
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <link rel="stylesheet" href="{url_for('static', filename='result.css', _external=True)}">
-        </head>
-        <body>
-            {html_content}
-        </body>
-        </html>
-        """
+        content = request.args.get('content')
+        if not content:
+            flash('No assessment results found.', 'error')
+            return redirect(url_for('chat'))
+        
+        return render_template('result.html', content=content)
+    
+    @app.route('/dashboard')
+    def dashboard():
+        """User dashboard with assessment history"""
+        if 'user' not in session:
+            return redirect(url_for('login'))
+        
+        user_id = session.get('user_id')
+        user = User.query.get(user_id)
+        
+        # Get recent assessments
+        recent_assessments = Assessment.query.filter_by(user_id=user_id)\
+            .order_by(Assessment.created_at.desc())\
+            .limit(5)\
+            .all()
+        
+        return render_template('dashboard.html', 
+                             user=user, 
+                             assessments=recent_assessments)
+    
+    @app.route('/logout')
+    def logout():
+        """Logout user"""
+        session.clear()
+        flash('You have been logged out successfully.', 'info')
+        return redirect(url_for('login'))
+    
+    @app.route('/download_pdf', methods=['POST'])
+    @limiter.limit("10 per hour")
+    def download_pdf():
+        """Enhanced PDF download with better error handling"""
+        if 'user' not in session:
+            return redirect(url_for('login'))
+        
+        try:
+            html_content = request.form.get('html_content')
+            if not html_content:
+                flash('No content to download.', 'error')
+                return redirect(url_for('chat'))
+            
+            # Create full HTML with styling
+            full_html = f"""
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8">
+                <style>
+                    body {{ font-family: Arial, sans-serif; line-height: 1.6; margin: 20px; }}
+                    h1, h2, h3 {{ color: #333; }}
+                    ul {{ margin-left: 20px; }}
+                    .header {{ text-align: center; margin-bottom: 30px; }}
+                    .footer {{ text-align: center; margin-top: 30px; font-size: 12px; color: #666; }}
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <h1>Vision U - Career Guide</h1>
+                    <p>Generated on {datetime.now().strftime('%B %d, %Y')}</p>
+                </div>
+                {html_content}
+                <div class="footer">
+                    <p>Generated by Vision U - AI-Powered Career Counseling</p>
+                </div>
+            </body>
+            </html>
+            """
+            
+            # PDF generation options
+            options = {
+                'page-size': 'A4',
+                'margin-top': '0.75in',
+                'margin-right': '0.75in',
+                'margin-bottom': '0.75in',
+                'margin-left': '0.75in',
+                'encoding': "UTF-8",
+                'enable-local-file-access': None
+            }
+            
+            pdf = pdfkit.from_string(full_html, False, options=options)
+            
+            response = make_response(pdf)
+            response.headers['Content-Type'] = 'application/pdf'
+            response.headers['Content-Disposition'] = 'attachment; filename=vision_u_career_guide.pdf'
+            
+            return response
+            
+        except FileNotFoundError:
+            logger.error("wkhtmltopdf not found")
+            flash('PDF generation service is currently unavailable.', 'error')
+            return redirect(request.referrer or url_for('chat'))
+        except Exception as e:
+            logger.error(f"PDF generation error: {e}")
+            flash('An error occurred while generating the PDF.', 'error')
+            return redirect(request.referrer or url_for('chat'))
+    
+    # Initialize database on first request
+    @app.before_first_request
+    def initialize_database():
+        """Initialize database on first request"""
+        if not init_db():
+            logger.error("Failed to initialize database")
+    
+    return app
 
-        pdf = pdfkit.from_string(full_html, False, configuration=config, options={"enable-local-file-access": ""})
-        
-        response = make_response(pdf)
-        response.headers['Content-Type'] = 'application/pdf'
-        response.headers['Content-Disposition'] = 'attachment; filename=career_guide.pdf'
-        
-        return response
-    except FileNotFoundError:
-        flash('wkhtmltopdf not found. Please install it and make sure it is in your PATH.', 'error')
-        return render_template('result.html', content=request.form['html_content'])
+# Create app instance
+app = create_app()
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=False)
+    debug = os.environ.get('FLASK_ENV') == 'development'
+    app.run(host='0.0.0.0', port=port, debug=debug)

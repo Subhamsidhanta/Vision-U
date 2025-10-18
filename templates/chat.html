@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>Chat - Vision U</title>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='chat.css') }}">
 </head>
 <body>
@@ -14,9 +15,15 @@
 
     <main class="chat-container">
         <div class="questionnaire-container">
-            <div class="logo">Vision U</div>
+            <div class="logo">
+                <img src="{{ url_for('static', filename='vu-logo.png') }}" alt="Vision U Logo" class="logo-img">
+                Vision U
+            </div>
             <h2>Tell us about yourself</h2>
             <form id="questionnaire-form">
+                {% if form %}
+                    {{ form.hidden_tag() }}
+                {% endif %}
                 <div class="form-group">
                     <label for="name">Name</label>
                     <input type="text" id="name" name="name" required>
@@ -91,20 +98,51 @@
                 appendMessage('user', message);
                 chatInput.value = '';
                 
+                // Show loading state
+                sendBtn.disabled = true;
+                sendBtn.textContent = 'Processing...';
+                
                 const formData = new FormData(questionnaireForm);
                 const userData = Object.fromEntries(formData.entries());
+                
+                // Get CSRF token
+                const csrfToken = document.querySelector('input[name="csrf_token"]')?.value;
 
                 fetch('/ask', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken
                     },
                     body: JSON.stringify({ user_info: userData, prompt: message })
                 })
                 .then(response => {
-                    if (response.redirected) {
-                        window.location.href = response.url;
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        return response.json().then(data => {
+                            throw new Error(data.error || 'Network response was not ok');
+                        });
                     }
+                })
+                .then(data => {
+                    if (data.success && data.redirect_url) {
+                        appendMessage('bot', 'Great! I\'ve prepared your personalized career guide. Redirecting...');
+                        setTimeout(() => {
+                            window.location.href = data.redirect_url;
+                        }, 1000);
+                    } else {
+                        throw new Error(data.error || 'Unexpected response format');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    appendMessage('bot', error.message || 'Sorry, there was an error processing your request. Please try again.');
+                })
+                .finally(() => {
+                    // Reset button state
+                    sendBtn.disabled = false;
+                    sendBtn.textContent = 'Send';
                 });
             }
         });

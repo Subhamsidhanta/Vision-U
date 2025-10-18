@@ -4,7 +4,51 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>Login - Vision U</title>
-        <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+    <style>
+        .form-error {
+            color: #ff6b6b;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: block;
+        }
+        .form-group.error input {
+            border-color: #ff6b6b;
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+        }
+        .validation-message {
+            background: rgba(255, 107, 107, 0.1);
+            border: 1px solid #ff6b6b;
+            color: #ff6b6b;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+        .login-btn.loading {
+            background: #666;
+            cursor: not-allowed;
+        }
+        .login-btn.loading::after {
+            content: '';
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 0.5rem;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
     <div class="background-effects">
@@ -13,6 +57,7 @@
 
     <main class="login-container">
         <div class="login-card">
+            <!-- Flash Messages -->
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     <ul class="flashes">
@@ -22,28 +67,201 @@
                     </ul>
                 {% endif %}
             {% endwith %}
-            <div class="logo">Vision U</div>
+
+            <!-- Form Validation Errors -->
+            {% if form and form.errors %}
+                <div class="validation-message">
+                    <strong>Please correct the following errors:</strong>
+                    <ul style="margin: 0.5rem 0 0 1rem;">
+                        {% for field_name, errors in form.errors.items() %}
+                            {% for error in errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+
+            <div class="logo">
+                <img src="{{ url_for('static', filename='vu-logo.png') }}" alt="Vision U Logo" class="logo-img">
+                Vision U
+            </div>
             <h2>Welcome back to the future.</h2>
-            <form method="post">
-                <div class="form-group">
+            
+            <form method="post" id="login-form" novalidate>
+                {{ form.hidden_tag() if form else '' }}
+                
+                <div class="form-group {{ 'error' if form and form.email.errors else '' }}">
                     <label for="email">Email Address</label>
-                    <input type="email" id="email" name="email" required>
+                    {% if form %}
+                        {{ form.email(class="form-control", id="email") }}
+                        {% if form.email.errors %}
+                            {% for error in form.email.errors %}
+                                <span class="form-error">{{ error }}</span>
+                            {% endfor %}
+                        {% endif %}
+                    {% else %}
+                        <input type="email" id="email" name="email" class="form-control" required 
+                               aria-describedby="email-error" autocomplete="email">
+                        <span class="form-error" id="email-error"></span>
+                    {% endif %}
                 </div>
-                <div class="form-group">
+
+                <div class="form-group {{ 'error' if form and form.password.errors else '' }}">
                     <label for="password">Password</label>
-                    <input type="password" id="password" name="password" required>
+                    {% if form %}
+                        {{ form.password(class="form-control", id="password") }}
+                        {% if form.password.errors %}
+                            {% for error in form.password.errors %}
+                                <span class="form-error">{{ error }}</span>
+                            {% endfor %}
+                        {% endif %}
+                    {% else %}
+                        <input type="password" id="password" name="password" class="form-control" required
+                               aria-describedby="password-error" autocomplete="current-password">
+                        <span class="form-error" id="password-error"></span>
+                    {% endif %}
                 </div>
-                <button type="submit" class="login-btn">Log In</button>
+
+                <button type="submit" class="login-btn" id="login-btn">
+                    Log In
+                </button>
             </form>
+
             <div class="extra-links">
-                <a href="javascript:void(0)">Forgot Password?</a>
-                <a href="/register">Create an Account</a>
+                <a href="javascript:void(0)" onclick="showForgotPassword()">Forgot Password?</a>
+                <a href="{{ url_for('register') }}">Create an Account</a>
             </div>
         </div>
+        
         <div class="back-to-home">
-             <a href="{{ url_for('index') }}">← Back to Home</a>
+            <a href="{{ url_for('index') }}">← Back to Home</a>
         </div>
     </main>
 
+    <script>
+        // Client-side validation
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+            const submitBtn = document.getElementById('login-btn');
+            
+            let isValid = true;
+
+            // Clear previous errors
+            clearErrors();
+
+            // Email validation
+            const emailValue = emailInput.value.trim();
+            if (!emailValue) {
+                showError(emailInput, 'Email is required');
+                isValid = false;
+            } else if (!isValidEmail(emailValue)) {
+                showError(emailInput, 'Please enter a valid email address');
+                isValid = false;
+            }
+
+            // Password validation
+            const passwordValue = passwordInput.value;
+            if (!passwordValue) {
+                showError(passwordInput, 'Password is required');
+                isValid = false;
+            } else if (passwordValue.length < 6) {
+                showError(passwordInput, 'Password must be at least 6 characters');
+                isValid = false;
+            }
+
+            if (!isValid) {
+                e.preventDefault();
+                return false;
+            }
+
+            // Show loading state
+            submitBtn.classList.add('loading');
+            submitBtn.textContent = 'Logging in...';
+        });
+
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        function showError(inputElement, message) {
+            const formGroup = inputElement.closest('.form-group');
+            formGroup.classList.add('error');
+            
+            const errorElement = formGroup.querySelector('.form-error');
+            if (errorElement) {
+                errorElement.textContent = message;
+            }
+        }
+
+        function clearErrors() {
+            const formGroups = document.querySelectorAll('.form-group');
+            formGroups.forEach(group => {
+                group.classList.remove('error');
+                const errorElement = group.querySelector('.form-error');
+                if (errorElement) {
+                    errorElement.textContent = '';
+                }
+            });
+        }
+
+        function showForgotPassword() {
+            alert('Password reset functionality will be available soon. Please contact support if you need immediate assistance.');
+        }
+
+        // Auto-focus on first input
+        document.addEventListener('DOMContentLoaded', function() {
+            const emailInput = document.getElementById('email');
+            if (emailInput && !emailInput.value) {
+                emailInput.focus();
+            }
+        });
+
+        // Real-time validation feedback
+        document.getElementById('email').addEventListener('blur', function() {
+            const value = this.value.trim();
+            if (value && !isValidEmail(value)) {
+                showError(this, 'Please enter a valid email address');
+            } else {
+                clearFieldError(this);
+            }
+        });
+
+        document.getElementById('password').addEventListener('input', function() {
+            const value = this.value;
+            if (value && value.length < 6) {
+                showError(this, 'Password must be at least 6 characters');
+            } else {
+                clearFieldError(this);
+            }
+        });
+
+        function clearFieldError(inputElement) {
+            const formGroup = inputElement.closest('.form-group');
+            formGroup.classList.remove('error');
+            const errorElement = formGroup.querySelector('.form-error');
+            if (errorElement) {
+                errorElement.textContent = '';
+            }
+        }
+
+        // Handle form submission response
+        window.addEventListener('load', function() {
+            const submitBtn = document.getElementById('login-btn');
+            if (submitBtn.classList.contains('loading')) {
+                submitBtn.classList.remove('loading');
+                submitBtn.textContent = 'Log In';
+            }
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && (e.target.id === 'email' || e.target.id === 'password')) {
+                document.getElementById('login-form').dispatchEvent(new Event('submit'));
+            }
+        });
+    </script>
 </body>
 </html>

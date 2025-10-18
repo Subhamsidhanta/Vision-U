@@ -1,6 +1,92 @@
-# Vision U - Render Deployment Guide
+# Vision U - Production Deployment Guide
 
-## 🚀 Quick Deployment Steps
+## 🚀 Render Deployment (Production)
+
+### Required Environment Variables
+
+Set these in your Render dashboard for production deployment:
+
+```bash
+# Core Flask Configuration (REQUIRED)
+SECRET_KEY=your-strong-production-secret-key-32-chars-minimum
+FLASK_ENV=production
+
+# AI Service (REQUIRED) 
+API_KEY=your-google-gemini-api-key-from-ai-studio
+
+# Database (AUTO-MANAGED by Render)
+DATABASE_URL=postgresql://user:pass@hostname:port/db_name
+
+# Optional Security Settings
+SESSION_COOKIE_SECURE=True
+SESSION_COOKIE_SAMESITE=Lax
+
+# Rate Limiting (Optional - defaults to memory)
+RATELIMIT_STORAGE_URL=redis://your-redis-url:6379
+```
+
+### 🗄️ Database Support
+
+**Render Supported Databases:**
+- ✅ **PostgreSQL** (REQUIRED for production - Free tier: 1GB storage)
+- ✅ **Redis** (Optional for rate limiting)
+
+**Your App Configuration:**
+- ✅ **PostgreSQL ONLY** in production (no SQLite fallback)
+- ✅ Auto-converts `postgres://` to `postgresql://` format  
+- ✅ Connection pooling (10 connections, auto-reconnect)
+- ✅ Uses `psycopg2-binary` driver (fast, reliable)
+- ✅ Fails fast if DATABASE_URL missing in production
+- ✅ SQLite only for local development
+
+### 🚀 Quick Deploy to Render
+
+**Step 1: Create Services**
+1. Go to [Render Dashboard](https://dashboard.render.com)
+2. Click "New" → "Web Service"
+3. Connect your GitHub repository
+4. Use these settings:
+   - **Name:** vision-u (or your preferred name)
+   - **Branch:** main
+   - **Runtime:** Python 3
+   - **Build Command:** `./build.sh`
+   - **Start Command:** `gunicorn wsgi:app --workers 3 --threads 2 --timeout 120`
+
+**Step 2: Add Database (REQUIRED)**
+1. Click "New" → "PostgreSQL" 
+2. Choose **Free** plan (1GB storage, 1M rows)
+3. Name it `vision-u-db`
+4. **IMPORTANT:** `DATABASE_URL` will be auto-set in your web service
+5. **Note:** App will fail to start without PostgreSQL in production
+
+**Step 3: Set Environment Variables**
+In your web service settings, add:
+```
+SECRET_KEY=your-32-char-secret-key-here
+API_KEY=your-google-gemini-api-key  
+FLASK_ENV=production
+```
+
+**Step 4: Deploy**
+- Click "Create Web Service"
+- Render will automatically build and deploy
+- First deploy takes ~5-10 minutes
+
+### Health Checks & Monitoring
+
+Your app exposes these endpoints:
+- `/health` - Full health check (DB + AI service status)
+- `/ready` - Fast readiness probe (DB connectivity)
+
+### Production Features
+
+✅ **Security**: HTTPS cookies, CSRF protection, security headers, rate limiting  
+✅ **Performance**: WhiteNoise static serving, Gunicorn multi-worker  
+✅ **Monitoring**: Structured logging, error tracking, health endpoints
+
+---
+
+## 🚀 Quick Deployment Steps (Legacy)
 
 ### 1. Prerequisites
 - GitHub account

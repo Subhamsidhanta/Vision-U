@@ -1,10 +1,400 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Vision U</title>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+    <style>
+        .dashboard-container {
+            min-height: 100vh;
+            background: var(--primary-bg);
+            padding-top: 100px;
+        }
+        .dashboard-header {
+            background: var(--card-bg);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .user-info h1 {
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            font-size: clamp(1.5rem, 4vw, 2rem);
+        }
+        .user-meta {
+            color: var(--text-secondary);
+            font-size: clamp(0.9rem, 2.5vw, 1rem);
+        }
+        .dashboard-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: clamp(0.9rem, 2.5vw, 1rem);
+        }
+        .btn-primary {
+            background: var(--gradient-1);
+            color: white;
+        }
+        .btn-secondary {
+            background: var(--glass-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--border-subtle);
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: clamp(1.5rem, 4vw, 2rem);
+            font-weight: 800;
+            color: var(--accent-cyan);
+            margin-bottom: 0.5rem;
+        }
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: clamp(0.8rem, 2vw, 0.9rem);
+        }
+        .assessments-section {
+            background: var(--card-bg);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            padding: 2rem;
+        }
+        .section-title {
+            color: var(--text-primary);
+            font-size: clamp(1.2rem, 3vw, 1.5rem);
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .assessment-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+        .assessment-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent-cyan);
+        }
+        .assessment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .assessment-title {
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: clamp(1rem, 2.5vw, 1.1rem);
+        }
+        .assessment-date {
+            color: var(--text-secondary);
+            font-size: clamp(0.8rem, 2vw, 0.9rem);
+        }
+        .assessment-preview {
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-bottom: 1rem;
+            font-size: clamp(0.9rem, 2vw, 1rem);
+        }
+        .assessment-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: clamp(0.8rem, 2vw, 0.9rem);
+            border-radius: 8px;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-secondary);
+        }
+        .empty-state-icon {
+            font-size: clamp(2rem, 6vw, 3rem);
+            margin-bottom: 1rem;
+            width: clamp(60px, 10vw, 80px);
+            height: clamp(60px, 10vw, 80px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem auto;
+        }
+
+        .empty-state-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: brightness(1.2);
+        }
+        @media (max-width: 768px) {
+            .dashboard-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            .dashboard-actions {
+                justify-content: center;
+            }
+            .assessment-header {
+                flex-direction: column;
+                align-items: start;
+            }
+        }
+    </style>
 </head>
 <body>
-  <h2>Welcome {{ user }}</h2>
-  <a href="{{ url_for('logout') }}">Logout</a>
+    <!-- Header -->
+    <header>
+        <nav>
+            <div class="logo">
+                <img src="{{ url_for('static', filename='vu-logo.png') }}" alt="Vision U Logo" class="logo-img">
+                Vision U
+            </div>
+            <ul class="nav-links">
+                <li><a href="{{ url_for('index') }}">Home</a></li>
+                <li><a href="{{ url_for('chat') }}">New Assessment</a></li>
+                <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+            </ul>
+            <div class="dashboard-actions">
+                <a href="{{ url_for('logout') }}" class="btn btn-secondary">Logout</a>
+            </div>
+        </nav>
+    </header>
+
+    <div class="dashboard-container">
+        <div class="container">
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages" style="margin-bottom: 2rem;">
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}" style="
+                                background: {% if category == 'success' %}var(--gradient-2){% elif category == 'error' %}linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%){% else %}var(--gradient-1){% endif %};
+                                color: white;
+                                padding: 1rem 1.5rem;
+                                border-radius: 12px;
+                                margin-bottom: 1rem;
+                                font-weight: 500;
+                            ">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <!-- Dashboard Header -->
+            <div class="dashboard-header">
+                <div class="user-info">
+                    <h1>Welcome back! 👋</h1>
+                    <div class="user-meta">
+                        <strong>{{ user.email if user else session.user }}</strong>
+                        {% if user and user.created_at %}
+                            • Member since {{ user.created_at.strftime('%B %Y') }}
+                        {% endif %}
+                        {% if user and user.last_login %}
+                            • Last visit: {{ user.last_login.strftime('%B %d, %Y') }}
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="dashboard-actions">
+                    <a href="{{ url_for('chat') }}" class="btn btn-primary">
+                        🚀 New Assessment
+                    </a>
+                    <a href="{{ url_for('index') }}" class="btn btn-secondary">
+                        🏠 Home
+                    </a>
+                </div>
+            </div>
+
+            <!-- Statistics -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">{{ assessments|length if assessments else 0 }}</div>
+                    <div class="stat-label">Career Assessments</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">
+                        {% if assessments %}
+                            {{ (assessments|selectattr('created_at')|list|length) }}
+                        {% else %}
+                            0
+                        {% endif %}
+                    </div>
+                    <div class="stat-label">This Month</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">
+                        {% if assessments and assessments|length > 0 %}
+                            {{ ((assessments|length / 3)|round|int) if assessments|length >= 3 else assessments|length }}
+                        {% else %}
+                            0
+                        {% endif %}
+                    </div>
+                    <div class="stat-label">Career Paths Explored</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">96%</div>
+                    <div class="stat-label">Success Rate</div>
+                </div>
+            </div>
+
+            <!-- Assessment History -->
+            <div class="assessments-section">
+                <h2 class="section-title">
+                    📊 Your Assessment History
+                </h2>
+
+                {% if assessments and assessments|length > 0 %}
+                    {% for assessment in assessments %}
+                        <div class="assessment-card">
+                            <div class="assessment-header">
+                                <div>
+                                    <div class="assessment-title">
+                                        Career Guidance for {{ assessment.name }}
+                                    </div>
+                                    <div class="assessment-date">
+                                        {{ assessment.created_at.strftime('%B %d, %Y at %I:%M %p') }}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="assessment-preview">
+                                <strong>Goal:</strong> {{ assessment.career_goal[:100] }}{% if assessment.career_goal|length > 100 %}...{% endif %}<br>
+                                <strong>Education:</strong> {{ assessment.education }}<br>
+                                <strong>Interests:</strong> {{ assessment.interest[:80] }}{% if assessment.interest|length > 80 %}...{% endif %}
+                            </div>
+                            
+                            <div class="assessment-actions">
+                                <a href="{{ url_for('view_assessment', assessment_id=assessment.id) }}" 
+                                   class="btn btn-primary btn-small">
+                                    📄 View Report
+                                </a>
+                                <button onclick="shareAssessment('{{ assessment.id }}')" 
+                                        class="btn btn-secondary btn-small">
+                                    🔗 Share
+                                </button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <div class="empty-state-icon">
+                            <img src="{{ url_for('static', filename='dashboard-icon.png') }}" alt="Dashboard Icon">
+                        </div>
+                        <h3 style="color: var(--text-primary); margin-bottom: 1rem;">No Assessments Yet</h3>
+                        <p style="margin-bottom: 2rem; max-width: 400px; margin-left: auto; margin-right: auto;">
+                            Take your first career assessment to get personalized guidance and discover your ideal career path.
+                        </p>
+                        <a href="{{ url_for('chat') }}" class="btn btn-primary">
+                            🚀 Start Your First Assessment
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Quick Actions -->
+            <div style="margin-top: 2rem; text-align: center;">
+                <h3 style="color: var(--text-primary); margin-bottom: 1.5rem;">Quick Actions</h3>
+                <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                    <a href="{{ url_for('chat') }}" class="btn btn-primary">
+                        ➕ New Assessment
+                    </a>
+                    <a href="{{ url_for('index') }}#features" class="btn btn-secondary">
+                        ✨ Explore Features
+                    </a>
+                    <a href="{{ url_for('index') }}#contact" class="btn btn-secondary">
+                        📞 Contact Support
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function shareAssessment(assessmentId) {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'My Career Assessment - Vision U',
+                    text: 'Check out my personalized career guidance from Vision U!',
+                    url: window.location.origin + '/dashboard'
+                }).then(() => {
+                    console.log('Thanks for sharing!');
+                }).catch(console.error);
+            } else {
+                // Fallback for browsers that don't support Web Share API
+                const url = window.location.origin + '/dashboard';
+                navigator.clipboard.writeText(url).then(() => {
+                    alert('Link copied to clipboard!');
+                }).catch(() => {
+                    alert('Could not copy link. Please copy manually: ' + url);
+                });
+            }
+        }
+
+        // Add some interactivity
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate stat numbers
+            const statNumbers = document.querySelectorAll('.stat-number');
+            statNumbers.forEach(stat => {
+                const value = parseInt(stat.textContent);
+                if (!isNaN(value) && value > 0) {
+                    stat.style.opacity = '0';
+                    setTimeout(() => {
+                        stat.style.transition = 'opacity 0.5s ease';
+                        stat.style.opacity = '1';
+                    }, Math.random() * 500);
+                }
+            });
+
+            // Add hover effect to assessment cards
+            const assessmentCards = document.querySelectorAll('.assessment-card');
+            assessmentCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                });
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+        });
+    </script>
 </body>
 </html>

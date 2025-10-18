@@ -102,6 +102,17 @@
             letter-spacing: -0.5px;
             text-align: center;
             margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .logo-img {
+            width: 2.8rem;
+            height: 2.8rem;
+            object-fit: contain;
+            filter: brightness(1.2);
         }
         
         .questionnaire-container h2 {

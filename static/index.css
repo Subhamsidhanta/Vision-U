@@ -77,6 +77,16 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
             letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-img {
+            width: 2.5rem;
+            height: 2.5rem;
+            object-fit: contain;
+            filter: brightness(1.2);
         }
 
         .nav-links {
@@ -377,6 +387,13 @@
             margin-bottom: clamp(1rem, 3vw, 1.5rem); /* Responsive margin */
         }
 
+        .feature-icon img {
+            width: 75%;
+            height: 75%;
+            object-fit: contain;
+            filter: brightness(1.2) contrast(1.1);
+        }
+
         .feature-card h3 {
             font-size: clamp(1.2rem, 3vw, 1.3rem); /* Responsive font size */
             font-weight: 700;
@@ -509,6 +526,13 @@
             justify-content: center;
             font-size: clamp(1.2rem, 3vw, 1.5rem); /* Responsive font size */
             margin: 0 auto clamp(1rem, 3vw, 1.5rem); /* Responsive margin */
+        }
+
+        .audience-icon img {
+            width: 70%;
+            height: 70%;
+            object-fit: contain;
+            filter: brightness(1.1);
         }
 
         /* Stats Section */

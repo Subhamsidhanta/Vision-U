@@ -1,14 +1,30 @@
 
-# Environment variables
+# Environment variables (sensitive data)
 .env
 .env.local
 .env.production
+.env.development
 
-# Instance folder
+# Database files (not needed in cloud deployment)
 instance/
 *.db
+*.sqlite
+*.sqlite3
 
-# Python cache
+# Development and testing files
+app_backup.py
+test_*.py
+setup_dev.py
+init_db.py
+
+# Documentation files (not needed for runtime)
+concept note.docx
+ENHANCEMENTS.md
+IMPROVEMENTS.md
+
+!DEPLOYMENT.md
+
+# Python cache and build artifacts
 __pycache__/
 *.py[cod]
 *$py.class
@@ -29,20 +45,25 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
 
-# Virtual environments
+# Virtual environments (use cloud environment)
 venv/
 env/
 ENV/
+.venv/
+.env/
 
-# IDE
+# IDE and editor files
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
+.spyderproject
+.spyproject
 
-# OS
+# OS generated files
 .DS_Store
 .DS_Store?
 ._*
@@ -50,9 +71,33 @@ ENV/
 .Trashes
 ehthumbs.db
 Thumbs.db
+Desktop.ini
 
-# Logs
+# Logs and temporary files
 *.log
+*.tmp
+*.temp
+logs/
 
-# Other
-concept note.docx
+# Coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# Backup files
+*.bak
+*.backup
+*~

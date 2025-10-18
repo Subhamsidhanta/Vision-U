@@ -4,13 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=devicwhe-width, initial-scale=1.0, shrink-to-fit=no">
     <title>Vision U - See Your Future Clearly</title>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
 </head>
 <body>
     <!-- Header -->
     <header>
         <nav>
-            <div class="logo">Vision U</div>
+            <div class="logo">
+                <img src="{{ url_for('static', filename='vu-logo.png') }}" alt="Vision U Logo" class="logo-img">
+                Vision U
+            </div>
             <ul class="nav-links">
                 <li><a href="#home">Home</a></li>
                 <li><a href="#features">Features</a></li>
@@ -77,32 +81,44 @@
             <h2 class="section-title fade-in">Powerful Features</h2>
             <div class="features-grid">
                 <div class="feature-card fade-in">
-                    <div class="feature-icon">🤖</div>
+                    <div class="feature-icon">
+                        <img src="{{ url_for('static', filename='ai-icon.png') }}" alt="AI Icon">
+                    </div>
                     <h3>AI-Powered Analysis</h3>
                     <p>Advanced machine learning algorithms analyze your personality, interests, and aptitude to provide highly accurate career recommendations tailored specifically for you.</p>
                 </div>
                 <div class="feature-card fade-in">
-                    <div class="feature-icon">🗺️</div>
+                    <div class="feature-icon">
+                        <img src="{{ url_for('static', filename='roadmap-icon.png') }}" alt="Roadmap Icon">
+                    </div>
                     <h3>Personalized Roadmaps</h3>
                     <p>Get detailed step-by-step career paths with timelines, required skills, educational milestones, and actionable next steps to reach your goals.</p>
                 </div>
                 <div class="feature-card fade-in">
-                    <div class="feature-icon">📊</div>
+                    <div class="feature-icon">
+                        <img src="{{ url_for('static', filename='insights-icon.png') }}" alt="Industry Insights Icon">
+                    </div>
                     <h3>Industry Insights</h3>
                     <p>Stay ahead with real-time market trends, salary insights, growth projections, and emerging opportunities in your field of interest.</p>
                 </div>
                 <div class="feature-card fade-in">
-                    <div class="feature-icon">🌐</div>
+                    <div class="feature-icon">
+                        <img src="{{ url_for('static', filename='responsive-icon.png') }}" alt="Multilingual Icon">
+                    </div>
                     <h3>Multilingual Support</h3>
                     <p>Access career guidance in Hindi, Bengali, Tamil, Marathi, and other regional languages, making it truly accessible across India.</p>
                 </div>
                 <div class="feature-card fade-in">
-                    <div class="feature-icon">⚡</div>
+                    <div class="feature-icon">
+                        <img src="{{ url_for('static', filename='speed-icon.png') }}" alt="24/7 Availability Icon">
+                    </div>
                     <h3>24/7 Availability</h3>
                     <p>Get instant career guidance anytime, anywhere. Our AI counselor never sleeps and is always ready to help you make informed decisions.</p>
                 </div>
                 <div class="feature-card fade-in">
-                    <div class="feature-icon">🎮</div>
+                    <div class="feature-icon">
+                        <img src="{{ url_for('static', filename='interactive-icon.png') }}" alt="Interactive Experience Icon">
+                    </div>
                     <h3>Interactive Experience</h3>
                     <p>Engaging gamified assessments and visual career maps make the journey of career discovery enjoyable and memorable.</p>
                 </div>
@@ -153,22 +169,30 @@
             <h2 class="section-title fade-in">Who We Empower</h2>
             <div class="audience-grid">
                 <div class="audience-card fade-in">
-                    <div class="audience-icon">🎓</div>
+                    <div class="audience-icon">
+                        <img src="{{ url_for('static', filename='student-icon.png') }}" alt="Students Icon">
+                    </div>
                     <h3>High School Students</h3>
                     <p>Classes 9-12 students at crucial decision points, choosing streams and planning their academic journey with confidence.</p>
                 </div>
                 <div class="audience-card fade-in">
-                    <div class="audience-icon">🔬</div>
+                    <div class="audience-icon">
+                        <img src="{{ url_for('static', filename='professional-icon.png') }}" alt="College Students Icon">
+                    </div>
                     <h3>College Students</h3>
                     <p>Undergraduate students seeking to align their studies with market opportunities and plan their career transitions effectively.</p>
                 </div>
                 <div class="audience-card fade-in">
-                    <div class="audience-icon">👨‍👩‍👧‍👦</div>
+                    <div class="audience-icon">
+                        <img src="{{ url_for('static', filename='parent-icon.png') }}" alt="Parents & Educators Icon">
+                    </div>
                     <h3>Parents & Educators</h3>
                     <p>Support your children and students with data-driven insights and remove guesswork from career counseling conversations.</p>
                 </div>
                 <div class="audience-card fade-in">
-                    <div class="audience-icon">🏫</div>
+                    <div class="audience-icon">
+                        <img src="{{ url_for('static', filename='educator-icon.png') }}" alt="Educational Institutions Icon">
+                    </div>
                     <h3>Educational Institutions</h3>
                     <p>Schools, colleges, and coaching institutes looking to provide comprehensive, scalable career guidance to their students.</p>
                 </div>

@@ -5,7 +5,52 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
     <title>Register - Vision U</title>
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='register.css') }}">
+        <style>
+            .alert {
+                padding: 0.75rem 1rem;
+                border-radius: 8px;
+                margin-bottom: 1rem;
+                font-size: 0.875rem;
+            }
+            .alert-danger {
+                background-color: rgba(220, 53, 69, 0.1);
+                border: 1px solid #dc3545;
+                color: #dc3545;
+            }
+            .alert-success {
+                background-color: rgba(40, 167, 69, 0.1);
+                border: 1px solid #28a745;
+                color: #28a745;
+            }
+            .error-messages {
+                margin-top: 0.25rem;
+            }
+            .text-danger {
+                color: #dc3545;
+                font-size: 0.875rem;
+            }
+            .form-control {
+                width: 100%;
+                padding: 0.75rem;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                font-size: 1rem;
+                transition: border-color 0.3s ease;
+            }
+            .form-control:focus {
+                outline: none;
+                border-color: #007bff;
+                box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+            }
+            .form-label {
+                display: block;
+                margin-bottom: 0.5rem;
+                font-weight: 500;
+                color: #333;
+            }
+        </style>
 </head>
 <body>
     <div class="background-effects">
@@ -14,18 +59,56 @@
 
     <main class="login-container">
         <div class="login-card">
-            <div class="logo">Vision U</div>
+            <div class="logo">
+                <img src="{{ url_for('static', filename='vu-logo.png') }}" alt="Vision U Logo" class="logo-img">
+                Vision U
+            </div>
             <h2>Create your account.</h2>
-            <form action="/register" method="post">
+            
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <form method="POST">
+                {{ form.hidden_tag() }}
                 <div class="form-group">
-                    <label for="email">Email Address</label>
-                    <input type="email" id="email" name="email" required>
+                    {{ form.email.label(class="form-label") }}
+                    {{ form.email(class="form-control", id="email") }}
+                    {% if form.email.errors %}
+                        <div class="error-messages">
+                            {% for error in form.email.errors %}
+                                <small class="text-danger">{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                 </div>
                 <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" required>
+                    {{ form.password.label(class="form-label") }}
+                    {{ form.password(class="form-control", id="password") }}
+                    {% if form.password.errors %}
+                        <div class="error-messages">
+                            {% for error in form.password.errors %}
+                                <small class="text-danger">{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                 </div>
-                <button type="submit" class="login-btn">Register</button>
+                <div class="form-group">
+                    {{ form.confirm_password.label(class="form-label") }}
+                    {{ form.confirm_password(class="form-control", id="confirm_password") }}
+                    {% if form.confirm_password.errors %}
+                        <div class="error-messages">
+                            {% for error in form.confirm_password.errors %}
+                                <small class="text-danger">{{ error }}</small>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                {{ form.submit(class="login-btn") }}
             </form>
             <div class="extra-links">
                 <a href="/login">Already have an account?</a>
