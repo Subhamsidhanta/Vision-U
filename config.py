@@ -56,7 +56,14 @@ class ProductionConfig(Config):
         """Get database URI from environment with proper format conversion"""
         database_url = os.environ.get('DATABASE_URL')
         if not database_url:
-            raise RuntimeError('DATABASE_URL environment variable is required in production')
+            # Provide helpful debugging information
+            available_vars = [k for k in os.environ.keys() if 'DATABASE' in k or 'DB' in k or 'POSTGRES' in k]
+            error_msg = (
+                'DATABASE_URL environment variable is required in production.\n'
+                f'Available database-related environment variables: {available_vars}\n'
+                'Please ensure your PostgreSQL database is connected to your Render web service.'
+            )
+            raise RuntimeError(error_msg)
         
         # Handle PostgreSQL URL format conversion
         if database_url.startswith('postgres://'):

@@ -5,6 +5,9 @@ services:
     plan: free
     buildCommand: "./build.sh"
     startCommand: "gunicorn wsgi:app --workers 3 --threads 2 --timeout 120"
+    databases:
+      - name: vision-u-db
+        property: DATABASE_URL
     envVars:
       - key: PYTHON_VERSION
         value: 3.12.0
