@@ -97,7 +97,7 @@ Vision U is a cutting-edge AI-powered career counseling platform designed to hel
 
 5. **Run the Application**
    ```bash
-   python app.py
+   python app_enhanced.py
    ```
    
    Visit: `http://localhost:5000`
@@ -119,24 +119,31 @@ DATABASE_URL=postgresql://user:pass@host:port/dbname
 Vision-U/
 ├── main/
 │   ├── static/           # CSS, JS, and assets
-│   │   ├── chat.css
-│   │   ├── index.css
-│   │   ├── login.css
-│   │   ├── register.css
-│   │   └── result.css
+│   │   ├── *.png        # Professional icons (16 custom icons)
+│   │   ├── *.css        # Stylesheets
+│   │   └── favicon.ico  # Site favicon
 │   ├── templates/        # HTML templates
+│   │   ├── errors/      # Error pages (404, 500)
 │   │   ├── chat.html
 │   │   ├── dashboard.html
 │   │   ├── index.html
 │   │   ├── login.html
 │   │   ├── register.html
 │   │   └── result.html
+│   ├── utils/           # Utility modules
+│   │   ├── ai_service.py
+│   │   └── performance.py
 │   ├── instance/         # Database files (local)
-│   ├── app.py           # Main Flask application
-│   ├── requirements.txt  # Python dependencies
+│   ├── app_enhanced.py  # Main Flask application
+│   ├── config.py        # Configuration management
+│   ├── models.py        # Database models
+│   ├── forms.py         # WTForms definitions
+│   ├── wsgi.py          # WSGI entry point
+│   ├── requirements.txt # Python dependencies
 │   ├── render.yaml      # Render deployment config
 │   ├── build.sh         # Build script
-│   ├── runtime.txt      # Python version
+│   ├── Procfile         # Process configuration
+│   ├── DEPLOYMENT.md    # Deployment guide
 │   └── README.md        # Project documentation
 ```
 
@@ -253,6 +260,9 @@ We welcome contributions! Please follow these steps:
 - ✅ **HTTPS Encryption** - Secure data transmission
 - ✅ **Input Validation** - Protected against attacks
 - ✅ **Session Management** - Secure user sessions
+- ✅ **CSRF Protection** - Cross-site request forgery protection
+- ✅ **Rate Limiting** - API abuse prevention
+- ✅ **Secure Headers** - Security-focused HTTP headers
 
 ## 📈 Performance
 
@@ -260,6 +270,8 @@ We welcome contributions! Please follow these steps:
 - 📱 **Mobile Responsive** - Works on all devices
 - 🌐 **Cross-browser** - Compatible everywhere
 - ♿ **Accessible** - Built with accessibility in mind
+- 🔄 **Health Monitoring** - Built-in health endpoints (/health, /ready)
+- 💾 **Connection Pooling** - Optimized database connections
 
 ## 📄 License
 
