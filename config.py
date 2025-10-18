@@ -55,15 +55,39 @@ class ProductionConfig(Config):
     def get_database_uri(cls):
         """Get database URI from environment with proper format conversion"""
         database_url = os.environ.get('DATABASE_URL')
+        
         if not database_url:
-            # Provide helpful debugging information
-            available_vars = [k for k in os.environ.keys() if 'DATABASE' in k or 'DB' in k or 'POSTGRES' in k]
-            error_msg = (
-                'DATABASE_URL environment variable is required in production.\n'
-                f'Available database-related environment variables: {available_vars}\n'
-                'Please ensure your PostgreSQL database is connected to your Render web service.'
-            )
-            raise RuntimeError(error_msg)
+            # Check for alternative database environment variables
+            alternative_vars = {
+                'POSTGRES_URL': os.environ.get('POSTGRES_URL'),
+                'POSTGRESQL_URL': os.environ.get('POSTGRESQL_URL'),
+                'DB_URL': os.environ.get('DB_URL'),
+            }
+            
+            # Try to find any available database URL
+            for var_name, var_value in alternative_vars.items():
+                if var_value:
+                    print(f"Using {var_name} as database URL")
+                    database_url = var_value
+                    break
+            
+            if not database_url:
+                # Show all environment variables for debugging
+                all_env_vars = list(os.environ.keys())
+                db_related_vars = [k for k in all_env_vars if any(term in k.upper() for term in ['DATABASE', 'DB', 'POSTGRES', 'SQL'])]
+                
+                error_msg = (
+                    'DATABASE_URL environment variable is required in production.\n'
+                    f'Available database-related environment variables: {db_related_vars}\n'
+                    f'All environment variables: {sorted(all_env_vars)}\n'
+                    'Please connect your PostgreSQL database to your Render web service manually:\n'
+                    '1. Go to your Render dashboard\n'
+                    '2. Select your web service\n'
+                    '3. Go to Environment tab\n'
+                    '4. Click "Add Environment Variable"\n'
+                    '5. Connect your vision-u-db database'
+                )
+                raise RuntimeError(error_msg)
         
         # Handle PostgreSQL URL format conversion
         if database_url.startswith('postgres://'):
