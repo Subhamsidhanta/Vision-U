@@ -67,16 +67,35 @@ def create_app(config_name: Optional[str] = None) -> Flask:
     # Get config class based on environment
     from config import config
     config_class = config.get(config_name, config['default'])
-    
-    # Handle DATABASE_URL for production before loading config
+
+    # Ensure a usable DB URI is available before applying production config
     if config_name == 'production':
         database_url = os.environ.get('DATABASE_URL')
         if database_url and database_url.startswith('postgres://'):
             # Fix postgres:// to postgresql:// for SQLAlchemy
             os.environ['DATABASE_URL'] = database_url.replace('postgres://', 'postgresql://', 1)
+        elif not database_url:
+            # Local dev fallback when running production entrypoint without DATABASE_URL
+            sqlite_path = os.path.join(os.path.dirname(__file__), 'instance', 'users.db')
+            os.makedirs(os.path.dirname(sqlite_path), exist_ok=True)
+            os.environ['DATABASE_URL'] = f"sqlite:///{sqlite_path}"
+            logger.warning("DATABASE_URL not set; falling back to local SQLite at %s", sqlite_path)
     
     # Load configuration
     app.config.from_object(config_class)
+
+    # Normalize SQLite relative paths to absolute to avoid CWD issues
+    db_uri = app.config.get('SQLALCHEMY_DATABASE_URI') or os.environ.get('DATABASE_URL')
+    if db_uri and db_uri.startswith('sqlite:///') and '://' in db_uri:
+        # Extract path part for sqlite relative URIs
+        path = db_uri.replace('sqlite:///', '', 1)
+        if not os.path.isabs(path):
+            abs_path = os.path.join(app.root_path, path)
+            os.makedirs(os.path.dirname(abs_path), exist_ok=True)
+            app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{abs_path}"
+            logger.info("Normalized SQLite path to absolute: %s", abs_path)
+
+    # Now run environment-specific init
     config_class.init_app(app)
 
     # Enforce SECRET_KEY from environment in production
@@ -358,12 +377,7 @@ def create_app(config_name: Optional[str] = None) -> Flask:
         
         return render_template('reset_password.html', form=form)
     
-    @app.route('/logout')
-    def logout():
-        """Logout user and clear session"""
-        session.clear()
-        flash('You have been logged out.', 'info')
-        return redirect(url_for('index'))
+    # Note: single logout route (avoid duplicate endpoint definition)
     
     @app.route('/chat')
     def chat():

@@ -4,6 +4,8 @@
 .env.local
 .env.production
 .env.development
+# Keep the example env file in version control for documentation
+!.env.example
 
 # Database files (not needed in cloud deployment)
 instance/
