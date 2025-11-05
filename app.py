@@ -13,7 +13,7 @@ import markdown
 import pdfkit
 import google.generativeai as genai
 from flask import Flask, render_template, request, redirect, session, url_for, flash, make_response, jsonify
-from flask_wtf.csrf import CSRFProtect
+from flask_wtf.csrf import CSRFProtect, CSRFError
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from werkzeug.exceptions import RequestEntityTooLarge, BadRequest
@@ -42,6 +42,16 @@ def create_app(config_name: Optional[str] = None) -> Flask:
     config_class = get_config()
     app.config.from_object(config_class)
     config_class.init_app(app)
+
+    # Normalize SQLite path for dev to avoid 'unable to open database file'
+    db_uri = app.config.get('SQLALCHEMY_DATABASE_URI') or os.environ.get('DATABASE_URL')
+    if db_uri and db_uri.startswith('sqlite:///') and '://' in db_uri:
+        path = db_uri.replace('sqlite:///', '', 1)
+        if not os.path.isabs(path):
+            abs_path = os.path.join(app.root_path, path)
+            os.makedirs(os.path.dirname(abs_path), exist_ok=True)
+            app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{abs_path}"
+            logger.info("Normalized SQLite path to absolute: %s", abs_path)
     
     # Trust proxy headers (for Render deployment)
     app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
@@ -92,7 +102,8 @@ def create_app(config_name: Optional[str] = None) -> Flask:
     @app.errorhandler(500)
     def internal_error(error):
         db.session.rollback()
-        logger.error(f"Internal server error: {error}")
+        # Log full traceback to aid debugging
+        logger.exception("Internal server error: %s", error)
         return render_template('errors/500.html'), 500
     
     @app.errorhandler(413)
@@ -103,6 +114,12 @@ def create_app(config_name: Optional[str] = None) -> Flask:
     @app.errorhandler(429)
     def ratelimit_handler(e):
         return jsonify({'error': 'Rate limit exceeded. Please try again later.'}), 429
+
+    @app.errorhandler(CSRFError)
+    def handle_csrf_error(e):
+        logger.warning("CSRF error: %s", getattr(e, 'description', str(e)))
+        flash('Your session expired or the form was tampered with. Please try again.', 'error')
+        return redirect(request.referrer or url_for('register')), 400
     
     # Database initialization
     def init_db():
@@ -200,8 +217,12 @@ def create_app(config_name: Optional[str] = None) -> Flask:
                 
             except Exception as e:
                 db.session.rollback()
-                logger.error(f"Registration error: {e}")
-                flash('An error occurred during registration. Please try again.', 'error')
+                logger.exception("Registration error for %s: %s", form.email.data, e)
+                # If duplicate email slipped past validation (race condition), show friendly message
+                if 'UNIQUE constraint' in str(e).upper() or 'unique constraint' in str(e).lower():
+                    flash('Email already registered. Please use a different email.', 'error')
+                else:
+                    flash('An error occurred during registration. Please try again.', 'error')
         
         return render_template('register.html', form=form)
     
