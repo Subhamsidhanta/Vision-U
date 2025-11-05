@@ -450,10 +450,8 @@ Always respond in **Markdown format** only.
             flash('An error occurred while generating the PDF.', 'error')
             return redirect(request.referrer or url_for('chat'))
     
-    # Initialize database on first request
-    @app.before_first_request
-    def initialize_database():
-        """Initialize database on first request"""
+    # Initialize database at app startup (Flask 3: before_first_request removed)
+    with app.app_context():
         if not init_db():
             logger.error("Failed to initialize database")
     
