@@ -2,7 +2,6 @@
 Vision U - AI-Powered Career Counseling Platform
 Enhanced version with security, performance, and reliability improvements
 """
-
 import os
 import logging
 import html
