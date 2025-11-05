@@ -5,7 +5,7 @@ services:
     plan: free
     buildCommand: "./build.sh"
     startCommand: "gunicorn wsgi:app --bind 0.0.0.0:$PORT --workers 3 --threads 2 --timeout 120"
-    healthCheckPath: /ready
+  healthCheckPath: /index
     envVars:
       - key: PYTHON_VERSION
         value: 3.12.0

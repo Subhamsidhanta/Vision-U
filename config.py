@@ -2,6 +2,7 @@
 Configuration management for Vision U application
 """
 import os
+from urllib.parse import urlparse, urlunparse
 from typing import Type
 from dotenv import load_dotenv
 
@@ -92,6 +93,21 @@ class ProductionConfig(Config):
         # Handle PostgreSQL URL format conversion
         if database_url.startswith('postgres://'):
             database_url = database_url.replace('postgres://', 'postgresql://', 1)
+
+        # Ensure SSL when using external Render Postgres host (non-internal)
+        try:
+            parsed = urlparse(database_url)
+            host = parsed.hostname or ""
+            if host.endswith('render.com') and '-internal' not in host:
+                # Append sslmode=require if not already present
+                if 'sslmode=' not in (parsed.query or ''):
+                    sep = '&' if parsed.query else ''
+                    new_query = f"{parsed.query}{sep}sslmode=require"
+                    parsed = parsed._replace(query=new_query)
+                    database_url = urlunparse(parsed)
+        except Exception:
+            # If parsing fails, leave URL unchanged
+            pass
         
         return database_url
     
